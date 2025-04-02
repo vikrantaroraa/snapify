@@ -159,34 +159,35 @@ export default function EditorScreen() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <Image source={{ uri: imageUri }} style={styles.image} />
-
-      <WebView
-        ref={canvasRef}
-        style={styles.canvas}
-        source={{ html: canvasHtml }}
-        onMessage={(event) => {
-          const path = JSON.parse(event.nativeEvent.data);
-          setPaths([...paths, path]);
-        }}
-      />
-
-      {stickers.map((sticker, index) => (
-        <PanGestureHandler key={index}>
-          <Animated.View
-            style={[
-              styles.sticker,
-              {
-                transform: [{ scale: sticker.scale }],
-                top: sticker.y,
-                left: sticker.x,
-              },
-            ]}
-          >
-            <Image source={sticker.uri} style={styles.stickerImage} />
-          </Animated.View>
-        </PanGestureHandler>
-      ))}
+      <View style={styles.imageContainer}>
+        <Image source={{ uri: imageUri }} style={styles.image} />
+        <WebView
+          ref={canvasRef}
+          style={styles.canvas}
+          androidLayerType="software"
+          source={{ html: canvasHtml }}
+          onMessage={(event) => {
+            const path = JSON.parse(event.nativeEvent.data);
+            setPaths([...paths, path]);
+          }}
+        />
+        {stickers.map((sticker, index) => (
+          <PanGestureHandler key={index}>
+            <Animated.View
+              style={[
+                styles.sticker,
+                {
+                  transform: [{ scale: sticker.scale }],
+                  top: sticker.y,
+                  left: sticker.x,
+                },
+              ]}
+            >
+              <Image source={sticker.uri} style={styles.stickerImage} />
+            </Animated.View>
+          </PanGestureHandler>
+        ))}
+      </View>
 
       <View style={styles.toolbar}>
         <TouchableOpacity style={styles.toolbarButton} onPress={handleBack}>
@@ -237,14 +238,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
   },
+  imageContainer: {
+    width: "94%",
+    height: "70%",
+    position: "relative",
+    overflow: "hidden",
+    marginHorizontal: "auto",
+    marginTop: 20,
+    backgroundColor: "black",
+    borderRadius: 8,
+  },
   image: {
-    width: "95%",
-    height: "25%",
-    margin: "auto",
+    width: "100%",
+    height: "100%",
+    position: "absolute", // Ensure it's inside the container
   },
   canvas: {
-    ...StyleSheet.absoluteFillObject,
+    width: "100%",
+    height: "100%",
+    position: "absolute", // Overlays the image
     backgroundColor: "transparent",
+    zIndex: 2, // Ensure it's above the image
   },
   toolbar: {
     position: "absolute",
@@ -279,11 +293,12 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.8)",
     flexDirection: "row",
     justifyContent: "space-around",
-    padding: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 10,
   },
   stickerButton: {
-    width: 60,
-    height: 60,
+    width: 55,
+    height: 55,
     borderRadius: 8,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     justifyContent: "center",
@@ -298,6 +313,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: 100,
     height: 100,
+    zIndex: 3, // Ensures stickers stay on top
   },
   stickerImage: {
     width: "100%",
