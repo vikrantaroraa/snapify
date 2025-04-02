@@ -1,36 +1,31 @@
 import { Tabs } from "expo-router";
-import { Home, Settings } from "lucide-react-native";
-import { useColorScheme } from "@/hooks/useColorScheme2";
+import { Camera, Image as ImageIcon } from "lucide-react-native";
 
-export default function Feature1Layout() {
-  const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === "dark";
-
+export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: isDark ? "#000" : "#fff",
-          borderTopColor: isDark ? "#333" : "#e5e5e5",
+          backgroundColor: "#1a1a1a",
         },
-        tabBarActiveTintColor: isDark ? "#fff" : "#000",
-        tabBarInactiveTintColor: isDark ? "#666" : "#999",
+        tabBarActiveTintColor: "#ffffff",
+        tabBarInactiveTintColor: "#888888",
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
-          tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
+          title: "Camera",
+          tabBarIcon: ({ size, color }) => <Camera size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="gallery"
         options={{
-          title: "Settings",
+          title: "Gallery",
           tabBarIcon: ({ size, color }) => (
-            <Settings size={size} color={color} />
+            <ImageIcon size={size} color={color} />
           ),
         }}
       />
