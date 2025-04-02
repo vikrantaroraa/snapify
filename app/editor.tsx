@@ -25,9 +25,12 @@ import { WebView } from "react-native-webview";
 import * as FileSystem from "expo-file-system";
 
 const STICKERS = [
-  "https://bit.ly/4bOZGOd/sticker1.png",
-  "https://bit.ly/4bOZGOd/sticker2.png",
-  "https://bit.ly/4bOZGOd/sticker3.png",
+  require("../assets/stickers/one-eyed-ufo.png"),
+  require("../assets/stickers/amazed-pizza-guy.png"),
+  require("../assets/stickers/flower-doughtnut-plant.png"),
+  require("../assets/stickers/grumpy-smoker.png"),
+  require("../assets/stickers/my-favourite-mug.png"),
+  require("../assets/stickers/wanda-the-sausage.png"),
 ];
 
 type Sticker = {
@@ -75,11 +78,11 @@ export default function EditorScreen() {
     }
   };
 
-  const handleAddSticker = (stickerUri: string) => {
+  const handleAddSticker = (stickerIndex: number) => {
     setStickers([
       ...stickers,
       {
-        uri: stickerUri,
+        uri: STICKERS[stickerIndex], // Use local sticker
         x: 0,
         y: 0,
         scale: 1,
@@ -171,9 +174,16 @@ export default function EditorScreen() {
       {stickers.map((sticker, index) => (
         <PanGestureHandler key={index}>
           <Animated.View
-            style={[styles.sticker, { transform: [{ scale: sticker.scale }] }]}
+            style={[
+              styles.sticker,
+              {
+                transform: [{ scale: sticker.scale }],
+                top: sticker.y,
+                left: sticker.x,
+              },
+            ]}
           >
-            <Image source={{ uri: sticker.uri }} style={styles.stickerImage} />
+            <Image source={sticker.uri} style={styles.stickerImage} />
           </Animated.View>
         </PanGestureHandler>
       ))}
@@ -211,9 +221,9 @@ export default function EditorScreen() {
             <TouchableOpacity
               key={index}
               style={styles.stickerButton}
-              onPress={() => handleAddSticker(sticker)}
+              onPress={() => handleAddSticker(index)}
             >
-              <Image source={{ uri: sticker }} style={styles.stickerPreview} />
+              <Image source={sticker} style={styles.stickerPreview} />
             </TouchableOpacity>
           ))}
         </View>
