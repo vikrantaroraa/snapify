@@ -25,12 +25,12 @@ import { WebView } from "react-native-webview";
 import * as FileSystem from "expo-file-system";
 
 const STICKERS = [
+  require("../assets/stickers/flower-doughtnut-plant.png"),
   require("../assets/stickers/one-eyed-ufo.png"),
   require("../assets/stickers/amazed-pizza-guy.png"),
-  require("../assets/stickers/flower-doughtnut-plant.png"),
+  require("../assets/stickers/wanda-the-sausage.png"),
   require("../assets/stickers/grumpy-smoker.png"),
   require("../assets/stickers/my-favourite-mug.png"),
-  require("../assets/stickers/wanda-the-sausage.png"),
 ];
 
 type Sticker = {
