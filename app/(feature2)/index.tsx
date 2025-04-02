@@ -16,6 +16,7 @@ import { Image } from "expo-image";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { Camera, ImagePlus, Palette } from "lucide-react-native";
 import { Link } from "expo-router";
+import * as FileSystem from "expo-file-system";
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -63,10 +64,29 @@ export default function CameraScreen() {
   //   setMode((prev) => (prev === "picture" ? "video" : "picture"));
   // };
 
+  async function savePhoto(uri: string) {
+    const newPath = `${FileSystem.documentDirectory}captured.jpg`; // Save to app's permanent storage
+
+    try {
+      await FileSystem.moveAsync({
+        from: uri,
+        to: newPath,
+      });
+      console.log("File moved successfully:", newPath);
+      return newPath;
+    } catch (error) {
+      console.log("Error moving file:", error);
+      return uri; // Return original URI if moving fails
+    }
+  }
+
   const takePicture = async () => {
     const photo = await ref.current?.takePictureAsync();
-    setUri(photo?.uri);
-    setCameraOpen(false);
+    if (photo?.uri) {
+      const newUri = await savePhoto(photo.uri);
+      setUri(`${newUri}?t=${Date.now()}`);
+      setCameraOpen(false);
+    }
   };
 
   const toggleFacing = () => {

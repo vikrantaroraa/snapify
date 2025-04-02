@@ -22,6 +22,7 @@ import { Check, X, Sticker, Download, Undo } from "lucide-react-native";
 import * as MediaLibrary from "expo-media-library";
 import * as ImageManipulator from "expo-image-manipulator";
 import { WebView } from "react-native-webview";
+import * as FileSystem from "expo-file-system";
 
 const STICKERS = [
   "https://bit.ly/4bOZGOd/sticker1.png",
@@ -37,7 +38,9 @@ type Sticker = {
 };
 
 export default function EditorScreen() {
-  const { image } = useLocalSearchParams<{ image: string }>();
+  const { uri } = useLocalSearchParams<{ uri: string }>();
+  const [imageUri, setImageUri] = useState(uri);
+  console.log("sent image:- ", uri);
   const [showStickers, setShowStickers] = useState(false);
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const canvasRef = useRef<WebView>(null);
@@ -53,13 +56,17 @@ export default function EditorScreen() {
     }
   };
 
+  useEffect(() => {
+    setImageUri(uri);
+    checkFileType(uri);
+  }, [uri]);
+
   const handleSave = async () => {
     try {
-      const manipulatedImage = await ImageManipulator.manipulateAsync(
-        image,
-        [],
-        { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
-      );
+      const manipulatedImage = await ImageManipulator.manipulateAsync(uri, [], {
+        compress: 1,
+        format: ImageManipulator.SaveFormat.JPEG,
+      });
 
       await MediaLibrary.saveToLibraryAsync(manipulatedImage.uri);
       handleBack();
@@ -141,9 +148,15 @@ export default function EditorScreen() {
     </html>
   `;
 
+  // Check file type of the current photo
+  async function checkFileType(uri: string) {
+    const info = await FileSystem.getInfoAsync(uri);
+    console.log("File Info:", info);
+  }
+
   return (
     <GestureHandlerRootView style={styles.container}>
-      <Image source={{ uri: image }} style={styles.image} />
+      <Image source={{ uri: imageUri }} style={styles.image} />
 
       <WebView
         ref={canvasRef}
@@ -215,8 +228,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
   },
   image: {
-    flex: 1,
-    resizeMode: "contain",
+    width: "95%",
+    height: "25%",
+    margin: "auto",
   },
   canvas: {
     ...StyleSheet.absoluteFillObject,
