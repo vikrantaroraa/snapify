@@ -14,7 +14,8 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { FontAwesome6 } from "@expo/vector-icons";
-import { ImagePlus } from "lucide-react-native";
+import { Camera, ImagePlus, Palette } from "lucide-react-native";
+import { Link } from "expo-router";
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -87,15 +88,25 @@ export default function CameraScreen() {
   const renderPicture = () => (
     <View style={styles.container}>
       <Image source={{ uri }} contentFit="cover" style={styles.photo} />
-      <TouchableOpacity
-        style={styles.startButton}
-        onPress={() => {
-          setUri(null);
-          setCameraOpen(true);
-        }}
-      >
-        <Text style={styles.startText}>Take Another Picture</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => {
+            setUri(null);
+            setCameraOpen(true);
+          }}
+        >
+          <Camera size={22} color="white" />
+          <Text style={styles.startText}>Take New Picture</Text>
+        </TouchableOpacity>
+        {/* Open Canvas Button */}
+        <Link href={{ pathname: "/editor", params: { uri } }} asChild>
+          <TouchableOpacity style={styles.actionButton}>
+            <Palette size={22} color="white" />
+            <Text style={styles.startText}>Open Canvas</Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
     </View>
   );
 
@@ -189,7 +200,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
   },
-
   photo: {
     width: "90%",
     height: "85%",
@@ -249,6 +259,20 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 60,
     right: 30,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 12,
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#333",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 25,
+    gap: 8,
   },
   // The following css will be used when adding record video feature to the app
   // shutterContainer: {
