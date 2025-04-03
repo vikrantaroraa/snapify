@@ -3,11 +3,11 @@ import { StyleSheet, View, Image, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   GestureHandlerRootView,
-  PanGestureHandler,
+  GestureDetector,
+  Gesture,
 } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
-  useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
@@ -113,6 +113,7 @@ export default function EditorScreen() {
     const y = useSharedValue(initialY);
     const scale = useSharedValue(initialScale);
 
+    // Animated style for positioning and scaling
     const animatedStyle = useAnimatedStyle(() => ({
       transform: [
         { translateX: x.value },
@@ -121,27 +122,37 @@ export default function EditorScreen() {
       ],
     }));
 
-    const gestureHandler = useAnimatedGestureHandler({
-      onStart: (_, ctx: any) => {
-        ctx.startX = x.value;
-        ctx.startY = y.value;
-      },
-      onActive: (event, ctx) => {
-        x.value = ctx.startX + event.translationX;
-        y.value = ctx.startY + event.translationY;
-      },
-      onEnd: () => {
-        // ✅ Store updated position in stickers state
+    // ✅ Drag Gesture (Pan)
+    const panGesture = Gesture.Pan()
+      .onStart(() => {
+        // Nothing needed here
+      })
+      .onUpdate((event) => {
+        x.value = event.translationX + initialX;
+        y.value = event.translationY + initialY;
+      })
+      .onEnd(() => {
         runOnJS(updateStickerPosition)(id, x.value, y.value);
-      },
-    });
+      });
+
+    // ✅ Pinch Gesture (Zoom)
+    const pinchGesture = Gesture.Pinch()
+      .onUpdate((event) => {
+        scale.value = event.scale;
+      })
+      .onEnd(() => {
+        runOnJS(updateStickerScale)(id, scale.value);
+      });
+
+    // ✅ Combine Both Gestures
+    const combinedGesture = Gesture.Simultaneous(panGesture, pinchGesture);
 
     return (
-      <PanGestureHandler onGestureEvent={gestureHandler}>
+      <GestureDetector gesture={combinedGesture}>
         <Animated.View style={[styles.sticker, animatedStyle]}>
           <Image source={uri} style={styles.stickerImage} />
         </Animated.View>
-      </PanGestureHandler>
+      </GestureDetector>
     );
   }
 
@@ -154,6 +165,14 @@ export default function EditorScreen() {
     setStickers((prevStickers) =>
       prevStickers.map((sticker) =>
         sticker.id === stickerId ? { ...sticker, x: newX, y: newY } : sticker
+      )
+    );
+  };
+
+  const updateStickerScale = (stickerId: number, newScale: number) => {
+    setStickers((prevStickers) =>
+      prevStickers.map((sticker) =>
+        sticker.id === stickerId ? { ...sticker, scale: newScale } : sticker
       )
     );
   };
