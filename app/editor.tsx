@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Image, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   GestureHandlerRootView,
   PanGestureHandler,
 } from "react-native-gesture-handler";
 import Animated, {
+  runOnJS,
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -79,8 +80,8 @@ export default function EditorScreen() {
     const centerX = imageSize.width / 2 - stickerSize / 2;
     const centerY = imageSize.height / 2 - stickerSize / 2;
 
-    setStickers([
-      ...stickers,
+    setStickers((prevStickers) => [
+      ...prevStickers,
       {
         id: Date.now(),
         uri: STICKERS[stickerIndex],
@@ -116,7 +117,7 @@ export default function EditorScreen() {
       transform: [
         { translateX: x.value },
         { translateY: y.value },
-        { scale: scale.value }, // ✅ Now scale is handled correctly
+        { scale: scale.value },
       ],
     }));
 
@@ -129,6 +130,10 @@ export default function EditorScreen() {
         x.value = ctx.startX + event.translationX;
         y.value = ctx.startY + event.translationY;
       },
+      onEnd: () => {
+        // ✅ Store updated position in stickers state
+        runOnJS(updateStickerPosition)(id, x.value, y.value);
+      },
     });
 
     return (
@@ -139,6 +144,19 @@ export default function EditorScreen() {
       </PanGestureHandler>
     );
   }
+
+  // Move the state update OUTSIDE the gesture handler
+  const updateStickerPosition = (
+    stickerId: number,
+    newX: number,
+    newY: number
+  ) => {
+    setStickers((prevStickers) =>
+      prevStickers.map((sticker) =>
+        sticker.id === stickerId ? { ...sticker, x: newX, y: newY } : sticker
+      )
+    );
+  };
 
   const canvasHtml = `
     <html>
