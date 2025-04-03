@@ -31,6 +31,7 @@ type Sticker = {
 export default function EditorScreen() {
   const { uri } = useLocalSearchParams<{ uri: string }>();
   const [imageUri, setImageUri] = useState(uri);
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   console.log("sent image:- ", uri);
   const [showStickers, setShowStickers] = useState(false);
   const [stickers, setStickers] = useState<Sticker[]>([]);
@@ -67,12 +68,18 @@ export default function EditorScreen() {
   };
 
   const handleAddSticker = (stickerIndex: number) => {
+    if (!imageSize.width || !imageSize.height) return;
+
+    const stickerSize = 100; // Assuming sticker size is 100x100
+    const centerX = imageSize.width / 2 - stickerSize / 2;
+    const centerY = imageSize.height / 2 - stickerSize / 2;
+
     setStickers([
       ...stickers,
       {
-        uri: STICKERS[stickerIndex], // Use local sticker
-        x: 0,
-        y: 0,
+        uri: STICKERS[stickerIndex],
+        x: centerX,
+        y: centerY,
         scale: 1,
       },
     ]);
@@ -147,7 +154,13 @@ export default function EditorScreen() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <View style={styles.imageContainer}>
+      <View
+        style={styles.imageContainer}
+        onLayout={(event) => {
+          const { width, height } = event.nativeEvent.layout;
+          setImageSize({ width, height });
+        }}
+      >
         <Image source={{ uri: imageUri }} style={styles.image} />
         <WebView
           ref={canvasRef}
