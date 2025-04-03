@@ -1,23 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  StyleSheet,
-  View,
-  Image,
-  TouchableOpacity,
-  Text,
-  Platform,
-} from "react-native";
+import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   GestureHandlerRootView,
   PanGestureHandler,
 } from "react-native-gesture-handler";
-import Animated, {
-  useAnimatedGestureHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import { Check, X, Sticker, Download, Undo } from "lucide-react-native";
 import * as MediaLibrary from "expo-media-library";
 import * as ImageManipulator from "expo-image-manipulator";
@@ -247,6 +235,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     backgroundColor: "black",
     borderRadius: 8,
+    borderColor: "#d3d3d3",
+    borderWidth: 2,
   },
   image: {
     width: "100%",
