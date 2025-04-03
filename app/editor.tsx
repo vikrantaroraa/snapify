@@ -5,7 +5,11 @@ import {
   GestureHandlerRootView,
   PanGestureHandler,
 } from "react-native-gesture-handler";
-import Animated from "react-native-reanimated";
+import Animated, {
+  useAnimatedGestureHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 import { Check, X, Sticker, Download, Undo } from "lucide-react-native";
 import * as MediaLibrary from "expo-media-library";
 import * as ImageManipulator from "expo-image-manipulator";
@@ -26,6 +30,7 @@ type Sticker = {
   x: number;
   y: number;
   scale: number;
+  id: number; // Unique ID to track stickers
 };
 
 export default function EditorScreen() {
@@ -70,25 +75,70 @@ export default function EditorScreen() {
   const handleAddSticker = (stickerIndex: number) => {
     if (!imageSize.width || !imageSize.height) return;
 
-    const stickerSize = 100; // Assuming sticker size is 100x100
+    const stickerSize = 100;
     const centerX = imageSize.width / 2 - stickerSize / 2;
     const centerY = imageSize.height / 2 - stickerSize / 2;
 
     setStickers([
       ...stickers,
       {
+        id: Date.now(),
         uri: STICKERS[stickerIndex],
         x: centerX,
         y: centerY,
         scale: 1,
       },
     ]);
-    setShowStickers(false);
   };
 
   const handleUndo = () => {
     setPaths((currentPaths) => currentPaths.slice(0, -1));
   };
+
+  function StickerComponent({
+    id,
+    uri,
+    initialX,
+    initialY,
+    initialScale,
+  }: {
+    id: number;
+    uri: any;
+    initialX: number;
+    initialY: number;
+    initialScale: number;
+  }) {
+    const x = useSharedValue(initialX);
+    const y = useSharedValue(initialY);
+    const scale = useSharedValue(initialScale);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [
+        { translateX: x.value },
+        { translateY: y.value },
+        { scale: scale.value }, // ✅ Now scale is handled correctly
+      ],
+    }));
+
+    const gestureHandler = useAnimatedGestureHandler({
+      onStart: (_, ctx: any) => {
+        ctx.startX = x.value;
+        ctx.startY = y.value;
+      },
+      onActive: (event, ctx) => {
+        x.value = ctx.startX + event.translationX;
+        y.value = ctx.startY + event.translationY;
+      },
+    });
+
+    return (
+      <PanGestureHandler onGestureEvent={gestureHandler}>
+        <Animated.View style={[styles.sticker, animatedStyle]}>
+          <Image source={uri} style={styles.stickerImage} />
+        </Animated.View>
+      </PanGestureHandler>
+    );
+  }
 
   const canvasHtml = `
     <html>
@@ -172,22 +222,18 @@ export default function EditorScreen() {
             setPaths([...paths, path]);
           }}
         />
-        {stickers.map((sticker, index) => (
-          <PanGestureHandler key={index}>
-            <Animated.View
-              style={[
-                styles.sticker,
-                {
-                  transform: [{ scale: sticker.scale }],
-                  top: sticker.y,
-                  left: sticker.x,
-                },
-              ]}
-            >
-              <Image source={sticker.uri} style={styles.stickerImage} />
-            </Animated.View>
-          </PanGestureHandler>
-        ))}
+        {stickers.map((sticker) => {
+          return (
+            <StickerComponent
+              key={sticker.id}
+              id={sticker.id}
+              uri={sticker.uri}
+              initialX={sticker.x}
+              initialY={sticker.y}
+              initialScale={sticker.scale}
+            />
+          );
+        })}
       </View>
 
       <View style={styles.toolbar}>
