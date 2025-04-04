@@ -43,6 +43,7 @@ export default function EditorScreen() {
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const canvasRef = useRef<WebView>(null);
   const [paths, setPaths] = useState<any[]>([]);
+  const [drawingDataUrl, setDrawingDataUrl] = useState<string | null>(null);
   const router = useRouter();
 
   const handleBack = () => {
@@ -178,66 +179,77 @@ export default function EditorScreen() {
   };
 
   const canvasHtml = `
-    <html>
-      <body style="margin: 0; overflow: hidden; touch-action: none;">
-        <canvas id="drawingCanvas" style="width: 100%; height: 100%;"></canvas>
-        <script>
-          const canvas = document.getElementById('drawingCanvas');
-          const ctx = canvas.getContext('2d');
-          let isDrawing = false;
-          let lastX = 0;
-          let lastY = 0;
-          
-          function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-          }
-          
-          window.addEventListener('resize', resize);
-          resize();
-          
-          canvas.addEventListener('touchstart', handleStart);
-          canvas.addEventListener('touchmove', handleMove);
-          canvas.addEventListener('touchend', handleEnd);
-          
-          function handleStart(e) {
-            e.preventDefault();
-            isDrawing = true;
-            const touch = e.touches[0];
-            [lastX, lastY] = [touch.clientX, touch.clientY];
-          }
-          
-          function handleMove(e) {
-            if (!isDrawing) return;
-            e.preventDefault();
-            const touch = e.touches[0];
-            const currentX = touch.clientX;
-            const currentY = touch.clientY;
-            
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(currentX, currentY);
-            ctx.strokeStyle = '#ff0000';
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-            
-            [lastX, lastY] = [currentX, currentY];
-          }
-          
-          function handleEnd() {
-            isDrawing = false;
-          }
-        </script>
-      </body>
-    </html>
-  `;
+  <html>
+    <body style="margin: 0; overflow: hidden; touch-action: none;">
+      <canvas id="drawingCanvas" style="width: 100%; height: 100%;"></canvas>
+      <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
 
-  // Check file type of the current photo
+        function resize() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener('resize', resize);
+        resize();
+
+        canvas.addEventListener('touchstart', handleStart);
+        canvas.addEventListener('touchmove', handleMove);
+        canvas.addEventListener('touchend', handleEnd);
+
+        function handleStart(e) {
+          e.preventDefault();
+          isDrawing = true;
+          const touch = e.touches[0];
+          [lastX, lastY] = [touch.clientX, touch.clientY];
+        }
+
+        function handleMove(e) {
+          if (!isDrawing) return;
+          e.preventDefault();
+          const touch = e.touches[0];
+          const currentX = touch.clientX;
+          const currentY = touch.clientY;
+
+          ctx.beginPath();
+          ctx.moveTo(lastX, lastY);
+          ctx.lineTo(currentX, currentY);
+          ctx.strokeStyle = '#ff0000';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+
+          [lastX, lastY] = [currentX, currentY];
+        }
+
+        function handleEnd() {
+          isDrawing = false;
+        }
+
+        // ✅ Capture drawing as base64 and send it to React Native
+        function exportDrawing() {
+          const dataUrl = canvas.toDataURL('image/png');
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'export', dataUrl }));
+        }
+      </script>
+    </body>
+  </html>
+`;
+
   async function checkFileType(uri: string) {
     const info = await FileSystem.getInfoAsync(uri);
     console.log("File Info:", info);
   }
+
+  const handleExportDrawing = () => {
+    if (canvasRef.current) {
+      canvasRef.current.injectJavaScript("exportDrawing();");
+    }
+  };
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -255,8 +267,11 @@ export default function EditorScreen() {
           androidLayerType="software"
           source={{ html: canvasHtml }}
           onMessage={(event) => {
-            const path = JSON.parse(event.nativeEvent.data);
-            setPaths([...paths, path]);
+            const message = JSON.parse(event.nativeEvent.data);
+            if (message.type === "export") {
+              console.log("Captured Drawing:", message.dataUrl); // ✅ Verify Base64 output
+              setDrawingDataUrl(message.dataUrl); // ✅ Save drawing base64
+            }
           }}
         />
         {stickers.map((sticker) => {
@@ -290,7 +305,10 @@ export default function EditorScreen() {
             <Sticker color="white" size={24} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.toolbarButton} onPress={handleSave}>
+          <TouchableOpacity
+            style={styles.toolbarButton}
+            onPress={handleExportDrawing}
+          >
             <Download color="white" size={24} />
           </TouchableOpacity>
         </View>
