@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { StyleSheet, View, Image, TouchableOpacity, Alert } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   GestureHandlerRootView,
@@ -16,6 +22,7 @@ import * as MediaLibrary from "expo-media-library";
 import * as ImageManipulator from "expo-image-manipulator";
 import { WebView } from "react-native-webview";
 import * as FileSystem from "expo-file-system";
+import { DimensionValue } from "react-native";
 
 const STICKERS = [
   require("../assets/stickers/flower-doughtnut-plant.png"),
@@ -288,6 +295,26 @@ export default function EditorScreen() {
         })}
       </View>
 
+      <View style={styles.stickersPanelContainer}>
+        {showStickers && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.stickersPanel}
+          >
+            {STICKERS.map((sticker, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.stickerButton}
+                onPress={() => handleAddSticker(index)}
+              >
+                <Image source={sticker} style={styles.stickerPreview} />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
+      </View>
+
       <View style={styles.toolbar}>
         <TouchableOpacity style={styles.toolbarButton} onPress={handleBack}>
           <X color="white" size={24} />
@@ -317,20 +344,6 @@ export default function EditorScreen() {
           <Check color="white" size={24} />
         </TouchableOpacity>
       </View>
-
-      {showStickers && (
-        <View style={styles.stickersPanel}>
-          {STICKERS.map((sticker, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.stickerButton}
-              onPress={() => handleAddSticker(index)}
-            >
-              <Image source={sticker} style={styles.stickerPreview} />
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
     </GestureHandlerRootView>
   );
 }
@@ -339,6 +352,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
+    display: "flex",
+    flexDirection: "column",
+    paddingTop: 20,
   },
   imageContainer: {
     width: "94%",
@@ -346,7 +362,6 @@ const styles = StyleSheet.create({
     position: "relative",
     overflow: "hidden",
     marginHorizontal: "auto",
-    marginTop: 20,
     backgroundColor: "black",
     borderRadius: 8,
     borderColor: "#d3d3d3",
@@ -365,16 +380,11 @@ const styles = StyleSheet.create({
     zIndex: 2, // Ensure it's above the image
   },
   toolbar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 100,
+    height: "16%",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingBottom: 40,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   toolbarCenter: {
@@ -389,16 +399,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  stickersPanelContainer: {
+    height: "14%",
+  },
   stickersPanel: {
-    position: "absolute",
-    bottom: 100,
-    left: 0,
-    right: 0,
+    height: "100%",
     backgroundColor: "rgba(0, 0, 0, 0.8)",
     flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 16,
+    alignItems: "flex-end",
     paddingHorizontal: 10,
+    gap: 10,
   },
   stickerButton: {
     width: 55,
