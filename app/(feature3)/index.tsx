@@ -11,10 +11,11 @@ import {
   Text,
   View,
   TouchableOpacity,
+  TextInput,
 } from "react-native";
 import { Image } from "expo-image";
 import { FontAwesome6 } from "@expo/vector-icons";
-import { Camera, ImagePlus, Palette } from "lucide-react-native";
+import { Camera, ImagePlus, Instagram, Palette } from "lucide-react-native";
 import { Link } from "expo-router";
 import * as FileSystem from "expo-file-system";
 
@@ -25,6 +26,7 @@ export default function CameraScreen() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [cameraOpen, setCameraOpen] = useState(false);
   const [mode, setMode] = useState<CameraMode>("picture");
+  const [caption, setCaption] = useState("");
 
   if (!permission) {
     return null;
@@ -88,8 +90,15 @@ export default function CameraScreen() {
   );
 
   const renderPicture = () => (
-    <View style={styles.container}>
+    <View style={styles.pictureContainer}>
       <Image source={{ uri }} contentFit="cover" style={styles.photo} />
+      <TextInput
+        style={styles.captionInput}
+        placeholder="Add a caption..."
+        value={caption}
+        onChangeText={setCaption}
+        multiline
+      />
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.actionButton}
@@ -99,17 +108,12 @@ export default function CameraScreen() {
           }}
         >
           <Camera size={22} color="white" />
-          <Text style={styles.startText}>Take New Picture</Text>
+          <Text style={styles.startText}>Retake</Text>
         </TouchableOpacity>
-        <Link
-          href={{ pathname: "/(feature2)/editor", params: { uri } }}
-          asChild
-        >
-          <TouchableOpacity style={styles.actionButton}>
-            <Palette size={22} color="white" />
-            <Text style={styles.startText}>Open Canvas</Text>
-          </TouchableOpacity>
-        </Link>
+        <TouchableOpacity style={styles.actionButton}>
+          <Instagram size={22} color="white" />
+          <Text style={styles.startText}>Share to Instagram</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -144,8 +148,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
-    alignItems: "center",
-    justifyContent: "center",
+    borderWidth: 2,
+    paddingHorizontal: 12,
+  },
+  pictureContainer: {
+    paddingTop: 12,
   },
   permissionText: {
     color: "#fff",
@@ -157,10 +164,9 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   photo: {
-    width: "90%",
-    height: "85%",
-    aspectRatio: 1,
-    borderRadius: 12,
+    width: "100%",
+    height: "75%",
+    borderRadius: 8,
     marginBottom: 16,
   },
   addButton: {
@@ -172,6 +178,15 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     flexDirection: "row",
     gap: 10,
+    margin: "auto",
+  },
+  captionInput: {
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 20,
+    fontSize: 16,
+    width: "100%",
   },
   addText: {
     color: "#fff",
@@ -218,16 +233,17 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
     gap: 12,
   },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "#333",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 25,
+    borderRadius: 8,
     gap: 8,
   },
 });
