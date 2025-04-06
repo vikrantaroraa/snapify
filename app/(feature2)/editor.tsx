@@ -26,12 +26,12 @@ import * as FileSystem from "expo-file-system";
 import ViewShot from "react-native-view-shot";
 
 const STICKERS = [
-  require("../assets/stickers/flower-doughtnut-plant.png"),
-  require("../assets/stickers/one-eyed-ufo.png"),
-  require("../assets/stickers/amazed-pizza-guy.png"),
-  require("../assets/stickers/wanda-the-sausage.png"),
-  require("../assets/stickers/grumpy-smoker.png"),
-  require("../assets/stickers/my-favourite-mug.png"),
+  require("../../assets/stickers/flower-doughtnut-plant.png"),
+  require("../../assets/stickers/one-eyed-ufo.png"),
+  require("../../assets/stickers/amazed-pizza-guy.png"),
+  require("../../assets/stickers/wanda-the-sausage.png"),
+  require("../../assets/stickers/grumpy-smoker.png"),
+  require("../../assets/stickers/my-favourite-mug.png"),
 ];
 
 type Sticker = {
@@ -55,33 +55,24 @@ export default function EditorScreen() {
   const router = useRouter();
   const viewShotRef = useRef(null);
 
+  // const handleBack = () => {
+  //   if (router && typeof router.back === "function") {
+  //     router.back();
+  //   } else {
+  //     // Fallback navigation if router.back is not available
+  //     router.replace("/(tabs)");
+  //   }
+  // };
+
   const handleBack = () => {
-    if (router && typeof router.back === "function") {
-      router.back();
-    } else {
-      // Fallback navigation if router.back is not available
-      router.replace("/(tabs)");
-    }
+    router.back();
+    // router.replace("/(feature2)");
   };
 
   useEffect(() => {
     setImageUri(uri);
     checkFileType(uri);
   }, [uri]);
-
-  const handleSave = async () => {
-    try {
-      const manipulatedImage = await ImageManipulator.manipulateAsync(uri, [], {
-        compress: 1,
-        format: ImageManipulator.SaveFormat.JPEG,
-      });
-
-      await MediaLibrary.saveToLibraryAsync(manipulatedImage.uri);
-      handleBack();
-    } catch (error) {
-      console.error("Failed to save image:", error);
-    }
-  };
 
   const handleAddSticker = (stickerIndex: number) => {
     if (!imageSize.width || !imageSize.height) return;
@@ -371,10 +362,6 @@ export default function EditorScreen() {
             <Download color="white" size={24} />
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity style={styles.toolbarButton} onPress={handleSave}>
-          <Check color="white" size={24} />
-        </TouchableOpacity>
       </View>
     </GestureHandlerRootView>
   );

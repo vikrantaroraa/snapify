@@ -120,7 +120,10 @@ export default function CameraScreen() {
           <Text style={styles.startText}>Take New Picture</Text>
         </TouchableOpacity>
         {/* Open Canvas Button */}
-        <Link href={{ pathname: "/editor", params: { uri } }} asChild>
+        <Link
+          href={{ pathname: "/(feature2)/editor", params: { uri } }}
+          asChild
+        >
           <TouchableOpacity style={styles.actionButton}>
             <Palette size={22} color="white" />
             <Text style={styles.startText}>Open Canvas</Text>
