@@ -5,6 +5,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -22,7 +23,7 @@ import * as MediaLibrary from "expo-media-library";
 import * as ImageManipulator from "expo-image-manipulator";
 import { WebView } from "react-native-webview";
 import * as FileSystem from "expo-file-system";
-import { DimensionValue } from "react-native";
+import ViewShot from "react-native-view-shot";
 
 const STICKERS = [
   require("../assets/stickers/flower-doughtnut-plant.png"),
@@ -52,6 +53,7 @@ export default function EditorScreen() {
   const [paths, setPaths] = useState<any[]>([]);
   const [drawingDataUrl, setDrawingDataUrl] = useState<string | null>(null);
   const router = useRouter();
+  const viewShotRef = useRef(null);
 
   const handleBack = () => {
     if (router && typeof router.back === "function") {
@@ -258,9 +260,40 @@ export default function EditorScreen() {
     }
   };
 
+  useEffect(() => {
+    (async () => {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        alert("Sorry, we need media library permissions to save the image.");
+      }
+    })();
+  }, []);
+
+  const handleExport = async () => {
+    try {
+      if (viewShotRef.current) {
+        const uri = await viewShotRef.current.capture();
+
+        const asset = await MediaLibrary.createAssetAsync(uri);
+        await MediaLibrary.createAlbumAsync("Image Edits", asset, false);
+
+        Alert.alert(
+          "✅ Saved!",
+          "Your edited image has been saved to your gallery."
+        );
+      }
+    } catch (error) {
+      console.error("Export failed:", error);
+      Alert.alert("❌ Error", "Failed to export the image.");
+    }
+  };
+
   return (
     <GestureHandlerRootView style={styles.container}>
-      <View
+      <ViewShot
+        ref={viewShotRef}
+        options={{ format: "png", quality: 1 }}
+        onCapture={(uri) => console.log("Captured composite image URI:", uri)}
         style={styles.imageContainer}
         onLayout={(event) => {
           const { width, height } = event.nativeEvent.layout;
@@ -293,7 +326,7 @@ export default function EditorScreen() {
             />
           );
         })}
-      </View>
+      </ViewShot>
 
       <View style={styles.stickersPanelContainer}>
         {showStickers && (
@@ -332,10 +365,7 @@ export default function EditorScreen() {
             <Sticker color="white" size={24} />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.toolbarButton}
-            onPress={handleExportDrawing}
-          >
+          <TouchableOpacity style={styles.toolbarButton} onPress={handleExport}>
             <Download color="white" size={24} />
           </TouchableOpacity>
         </View>
