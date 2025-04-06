@@ -290,43 +290,45 @@ export default function EditorScreen() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <ViewShot
-        ref={viewShotRef}
-        options={{ format: "png", quality: 1 }}
-        onCapture={(uri) => console.log("Captured composite image URI:", uri)}
-        style={styles.imageContainer}
-        onLayout={(event) => {
-          const { width, height } = event.nativeEvent.layout;
-          setImageSize({ width, height });
-        }}
-      >
-        <Image source={{ uri: imageUri }} style={styles.image} />
-        <WebView
-          ref={canvasRef}
-          style={styles.canvas}
-          androidLayerType="software"
-          source={{ html: canvasHtml }}
-          onMessage={(event) => {
-            const message = JSON.parse(event.nativeEvent.data);
-            if (message.type === "export") {
-              console.log("Captured Drawing:", message.dataUrl); // ✅ Verify Base64 output
-              setDrawingDataUrl(message.dataUrl); // ✅ Save drawing base64
-            }
+      <View style={styles.viewShotContainer}>
+        <ViewShot
+          ref={viewShotRef}
+          options={{ format: "png", quality: 1 }}
+          onCapture={(uri) => console.log("Captured composite image URI:", uri)}
+          style={styles.imageContainer}
+          onLayout={(event) => {
+            const { width, height } = event.nativeEvent.layout;
+            setImageSize({ width, height });
           }}
-        />
-        {stickers.map((sticker) => {
-          return (
-            <StickerComponent
-              key={sticker.id}
-              id={sticker.id}
-              uri={sticker.uri}
-              initialX={sticker.x}
-              initialY={sticker.y}
-              initialScale={sticker.scale}
-            />
-          );
-        })}
-      </ViewShot>
+        >
+          <Image source={{ uri: imageUri }} style={styles.image} />
+          <WebView
+            ref={canvasRef}
+            style={styles.canvas}
+            androidLayerType="software"
+            source={{ html: canvasHtml }}
+            onMessage={(event) => {
+              const message = JSON.parse(event.nativeEvent.data);
+              if (message.type === "export") {
+                console.log("Captured Drawing:", message.dataUrl); // ✅ Verify Base64 output
+                setDrawingDataUrl(message.dataUrl); // ✅ Save drawing base64
+              }
+            }}
+          />
+          {stickers.map((sticker) => {
+            return (
+              <StickerComponent
+                key={sticker.id}
+                id={sticker.id}
+                uri={sticker.uri}
+                initialX={sticker.x}
+                initialY={sticker.y}
+                initialScale={sticker.scale}
+              />
+            );
+          })}
+        </ViewShot>
+      </View>
 
       <View style={styles.stickersPanelContainer}>
         {showStickers && (
@@ -386,16 +388,20 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     paddingTop: 20,
   },
-  imageContainer: {
+  viewShotContainer: {
     width: "94%",
     height: "70%",
-    position: "relative",
-    overflow: "hidden",
-    marginHorizontal: "auto",
-    backgroundColor: "black",
-    borderRadius: 8,
     borderColor: "#d3d3d3",
     borderWidth: 2,
+    marginHorizontal: "auto",
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  imageContainer: {
+    width: "100%",
+    height: "100%",
+    position: "relative",
+    backgroundColor: "black",
   },
   image: {
     width: "100%",
