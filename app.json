@@ -8,6 +8,11 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": ["lucide-react-native"]
+      }
+    },
     "ios": {
       "supportsTablet": true
     },

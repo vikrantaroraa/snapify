@@ -44,7 +44,7 @@ export default function CameraScreen() {
 
   if (!permission.granted) {
     return (
-      <View style={styles.container}>
+      <View style={styles.permissionsContainer}>
         <Text style={styles.permissionText}>
           We need your permission to use the camera
         </Text>
@@ -233,6 +233,14 @@ export default function CameraScreen() {
 }
 
 const styles = StyleSheet.create({
+  permissionsContainer: {
+    flex: 1,
+    backgroundColor: "#000",
+    borderWidth: 2,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   container: {
     flex: 1,
     backgroundColor: "#000",
@@ -246,6 +254,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     fontSize: 16,
+    marginBottom: 20,
   },
   camera: {
     flex: 1,
@@ -329,7 +338,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#333",
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 12,
     borderRadius: 8,
     gap: 8,
