@@ -22,6 +22,10 @@ import { Camera, ImagePlus, Instagram, Palette } from "lucide-react-native";
 import { Link } from "expo-router";
 import * as FileSystem from "expo-file-system";
 import { ImageManipulator } from "expo-image-manipulator";
+import * as IntentLauncher from "expo-intent-launcher";
+import * as MediaLibrary from "expo-media-library";
+import * as Sharing from "expo-sharing";
+import * as Mime from "react-native-mime-types"; // New package we'll use
 
 const INSTAGRAM_STORE_URLS = {
   ios: "https://apps.apple.com/app/instagram/id389801252",
@@ -87,77 +91,248 @@ export default function CameraScreen() {
     setFacing((prev) => (prev === "back" ? "front" : "back"));
   };
 
-  const shareToInstagram = async () => {
-    if (!uri) return;
+  // const shareToInstagram = async () => {
+  //   // await Linking.openURL(
+  //   //   `content://com.instagram.share.ADD_TO_STORY?source_application=your_app_package_name&caption=${encodeURIComponent(
+  //   //     caption
+  //   //   )}&media_type=photo&source_url=${destinationUri}`
+  //   // );
+  //   // `content://com.instagram.share.ADD_TO_STORY?source_application=your_app_package_name&caption=${encodeURIComponent(
+  //   //   caption
+  //   // )}&media_type=photo&source_url=${destinationUri}`;
+  //   if (!uri) return;
 
+  //   try {
+  //     let imageUri = uri;
+
+  //     // Only manipulate image on iOS
+  //     if (Platform.OS === "ios") {
+  //       const manipResult = await ImageManipulator.manipulateAsync(uri, [], {
+  //         format: "jpeg",
+  //       });
+  //       imageUri = manipResult.uri;
+  //     }
+
+  //     const fileExists = await FileSystem.getInfoAsync(imageUri);
+
+  //     if (!fileExists.exists) {
+  //       throw new Error("Image file not found");
+  //     }
+
+  //     if (Platform.OS === "ios") {
+  //       const instagramURL = `instagram-stories://share?source_application=your_app_name`;
+
+  //       const canOpen = await Linking.canOpenURL(instagramURL);
+  //       if (!canOpen) {
+  //         Alert.alert(
+  //           "Instagram Not Found",
+  //           "Please install Instagram to share your story.",
+  //           [
+  //             { text: "Cancel", style: "cancel" },
+  //             {
+  //               text: "Install",
+  //               onPress: () => Linking.openURL(INSTAGRAM_STORE_URLS.ios),
+  //             },
+  //           ]
+  //         );
+  //         return;
+  //       }
+
+  //       await Linking.openURL(instagramURL);
+  //     } else {
+  //       // // Android: Use a simpler intent URL format
+  //       const intentUrl = `instagram://story-camera`;
+  //       // const intentUrl = `instagram-stories://share?backgroundImage=${uri}&attributionURL=YOUR_APP_URL&app_id=YOUR_FACEBOOK_APP_ID&sticker_text=${encodeURIComponent(
+  //       //   caption
+  //       // )}`;
+
+  //       try {
+  //         const canOpen = await Linking.canOpenURL(intentUrl);
+  //         if (canOpen) {
+  //           // await Linking.openURL(intentUrl);
+  //           await Linking.openURL(
+  //             `content://com.instagram.share.ADD_TO_STORY?source_application=1321011919674357&caption=${encodeURIComponent(
+  //               caption
+  //             )}&media_type=photo&source_url=${uri}`
+  //           );
+  //         } else {
+  //           throw new Error("Cannot open Instagram");
+  //         }
+  //       } catch (error) {
+  //         Alert.alert(
+  //           "Error",
+  //           "Could not open Instagram. Please make sure Instagram is installed and try again.",
+  //           [
+  //             { text: "Cancel", style: "cancel" },
+  //             {
+  //               text: "Open Play Store",
+  //               onPress: () => Linking.openURL(INSTAGRAM_STORE_URLS.android),
+  //             },
+  //           ]
+  //         );
+  //       }
+
+  //       // console.log("Attempting to share to Instagram...");
+  //       // const permission = await MediaLibrary.requestPermissionsAsync();
+  //       // if (!permission.granted) {
+  //       //   Alert.alert("Permission needed", "Storage access is required.");
+  //       //   return;
+  //       // }
+
+  //       // const permission = await MediaLibrary.requestPermissionsAsync();
+  //       // if (!permission.granted) {
+  //       //   Alert.alert("Permission needed", "Storage access is required.");
+  //       //   return;
+  //       // }
+
+  //       // Save to media library so Instagram can access it
+  //       const asset = await MediaLibrary.createAssetAsync(imageUri);
+  //       console.log("ye hai aapka asset: ", asset); // Debugging line
+  //       const mimeType = Mime.lookup(asset.uri) || "image/jpg";
+
+  //       // Check Instagram is installed
+  //       // const canOpen = await Linking.canOpenURL("instagram://story-camera");
+  //       // if (!canOpen) {
+  //       //   Alert.alert(
+  //       //     "Instagram not found",
+  //       //     "Please install Instagram to share your story.",
+  //       //     [
+  //       //       { text: "Cancel", style: "cancel" },
+  //       //       {
+  //       //         text: "Install",
+  //       //         onPress: () => Linking.openURL(INSTAGRAM_STORE_URLS.android),
+  //       //       },
+  //       //     ]
+  //       //   );
+  //       //   return;
+  //       // }
+
+  //       // const intentParams = {
+  //       //   action: "com.instagram.share.ADD_TO_STORY", // ✅ correct action
+  //       //   type: "image/*",
+  //       //   flags: 1,
+  //       //   extras: {
+  //       //     source_application: "com.vikrantaroraa.snapify", // ✅ this is where your App ID or package name goes
+  //       //     interactive_asset_uri: asset.uri,
+  //       //     top_background_color: "#000000",
+  //       //     bottom_background_color: "#ffffff",
+  //       //     content_url: "https://snapify-app.netlify.app",
+  //       //   },
+  //       // } as any;
+
+  //       // const intentParams2 = {
+  //       //   action: "com.instagram.share.ADD_TO_STORY",
+  //       //   type: mimeType,
+  //       //   packageName: "com.instagram.android",
+  //       //   flags: 1,
+  //       //   extras: {
+  //       //     // "android.intent.extra.STREAM": asset.uri,
+  //       //     "android.intent.extra.TEXT": "Shared from Snapify ✨",
+  //       //     interactive_asset_uri: asset.uri,
+  //       //     top_background_color: "#FF0000",
+  //       //     bottom_background_color: "#00FF00",
+  //       //     source_application: "1321011919674357",
+  //       //     appId: "1321011919674357", // Your app ID or package name
+  //       //   },
+  //       // };
+  //       // try {
+  //       //   console.log("Launching Instagram with params:", intentParams2); // Debugging line
+  //       //   const result = await IntentLauncher.startActivityAsync(
+  //       //     "com.instagram.share.ADD_TO_STORY",
+  //       //     intentParams2
+  //       //   );
+  //       //   console.log("return of result:- ", result); // Debugging line
+  //       // } catch (error) {
+  //       //   console.error("Failed to share to Instagram Story:", error);
+  //       //   Alert.alert(
+  //       //     "Error",
+  //       //     "Instagram not found. Please install Instagram and try again.",
+  //       //     [
+  //       //       { text: "Cancel", style: "cancel" },
+  //       //       {
+  //       //         text: "Install",
+  //       //         onPress: () => Linking.openURL(INSTAGRAM_STORE_URLS.android),
+  //       //       },
+  //       //     ]
+  //       //   );
+  //       // }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error sharing to Instagram:", error);
+  //     Alert.alert(
+  //       "Error",
+  //       "Failed to share to Instagram Stories. Please try again.",
+  //       [{ text: "OK" }]
+  //     );
+  //   }
+  // };
+
+  const shareToInstagram = async (uri: string) => {
     try {
-      let imageUri = uri;
-
-      // Only manipulate image on iOS
-      if (Platform.OS === "ios") {
-        const manipResult = await ImageManipulator.manipulateAsync(uri, [], {
-          format: "jpeg",
-        });
-        imageUri = manipResult.uri;
+      // Step 1: Request media library permissions first
+      const permissionResult = await MediaLibrary.requestPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert("Permission needed", "Media library access is required.");
+        return;
       }
 
-      const fileExists = await FileSystem.getInfoAsync(imageUri);
+      // Step 2: Copy the image to app's cache directory first (which is accessible to FileSystem)
+      const filename = "instagram_share.jpg";
+      const destinationUri = `${FileSystem.cacheDirectory}${filename}`;
 
-      if (!fileExists.exists) {
-        throw new Error("Image file not found");
-      }
+      await FileSystem.copyAsync({
+        from: uri,
+        to: destinationUri,
+      });
 
-      if (Platform.OS === "ios") {
-        const instagramURL = `instagram-stories://share?source_application=your_app_name`;
+      // Step 3: Get content URI from the copied file (this should work since it's in our app's cache)
+      const contentUri = await FileSystem.getContentUriAsync(destinationUri);
 
-        const canOpen = await Linking.canOpenURL(instagramURL);
-        if (!canOpen) {
-          Alert.alert(
-            "Instagram Not Found",
-            "Please install Instagram to share your story.",
-            [
-              { text: "Cancel", style: "cancel" },
-              {
-                text: "Install",
-                onPress: () => Linking.openURL(INSTAGRAM_STORE_URLS.ios),
-              },
-            ]
-          );
-          return;
+      console.log("Generated content URI:", contentUri);
+
+      // Step 4: Save to media library to make it persistent
+      const asset = await MediaLibrary.createAssetAsync(destinationUri);
+      console.log("Created media asset:", asset);
+
+      // Step 5: Use the content URI for Instagram intent
+      const mimeType = "image/jpeg"; // You could use Mime.lookup but this is safer
+
+      const result = await IntentLauncher.startActivityAsync(
+        "com.instagram.share.ADD_TO_STORY",
+        {
+          // action: "com.instagram.share.ADD_TO_STORY",
+          type: mimeType,
+          packageName: "com.instagram.android",
+          flags: 1,
+          // extra: {
+          //   source_application: "1321011919674357", // Your Facebook App ID
+          //   interactive_asset_uri: contentUri, // Using the content URI
+          //   top_background_color: "#FF0000",
+          //   bottom_background_color: "#00FF00",
+          //   content_url: "https://snapify-app.netlify.app", // optional
+          // },
+          data: contentUri,
+          extra: {
+            "com.instagram.sharedSticker.backgroundImage": contentUri,
+            "com.instagram.sharedSticker.contentURL": "https://snapify.fun/",
+            "com.facebook.platform.extra.APPLICATION_ID": "1321011919674357",
+          },
         }
+      );
 
-        await Linking.openURL(instagramURL);
-      } else {
-        // Android: Use a simpler intent URL format
-        const intentUrl = `instagram://story-camera`;
-
-        try {
-          const canOpen = await Linking.canOpenURL(intentUrl);
-          if (canOpen) {
-            await Linking.openURL(intentUrl);
-          } else {
-            throw new Error("Cannot open Instagram");
-          }
-        } catch (error) {
-          Alert.alert(
-            "Error",
-            "Could not open Instagram. Please make sure Instagram is installed and try again.",
-            [
-              { text: "Cancel", style: "cancel" },
-              {
-                text: "Open Play Store",
-                onPress: () => Linking.openURL(INSTAGRAM_STORE_URLS.android),
-              },
-            ]
-          );
-        }
-      }
-    } catch (error) {
-      console.error("Error sharing to Instagram:", error);
+      console.log("Instagram Story share result:", result);
+    } catch (err) {
+      console.error("Error sharing to Instagram:", err);
       Alert.alert(
         "Error",
-        "Failed to share to Instagram Stories. Please try again.",
-        [{ text: "OK" }]
+        "Failed to share to Instagram. Please make sure Instagram is installed.",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Install Instagram",
+            onPress: () => Linking.openURL(INSTAGRAM_STORE_URLS.android),
+          },
+        ]
       );
     }
   };
@@ -197,7 +372,7 @@ export default function CameraScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={shareToInstagram}
+          onPress={() => shareToInstagram(uri!)}
         >
           <Instagram size={22} color="white" />
           <Text style={styles.startText}>Share to Instagram</Text>
