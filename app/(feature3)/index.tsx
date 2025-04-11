@@ -91,7 +91,7 @@ export default function CameraScreen() {
     setFacing((prev) => (prev === "back" ? "front" : "back"));
   };
 
-  // const shareToInstagram = async () => {
+  // const shareToInstagram2 = async () => {
   //   // await Linking.openURL(
   //   //   `content://com.instagram.share.ADD_TO_STORY?source_application=your_app_package_name&caption=${encodeURIComponent(
   //   //     caption
@@ -268,72 +268,91 @@ export default function CameraScreen() {
   // };
 
   const shareToInstagram = async (uri: string) => {
-    try {
-      // Step 1: Request media library permissions first
-      const permissionResult = await MediaLibrary.requestPermissionsAsync();
-      if (!permissionResult.granted) {
-        Alert.alert("Permission needed", "Media library access is required.");
-        return;
-      }
+    const intentUrl = "instagram://story-camera";
+    const isInstalled = await Linking.canOpenURL(intentUrl);
+    console.log("isInstalled: ", isInstalled); // Debugging line
 
-      // Step 2: Copy the image to app's cache directory first (which is accessible to FileSystem)
-      const filename = "instagram_share.jpg";
-      const destinationUri = `${FileSystem.cacheDirectory}${filename}`;
-
-      await FileSystem.copyAsync({
-        from: uri,
-        to: destinationUri,
-      });
-
-      // Step 3: Get content URI from the copied file (this should work since it's in our app's cache)
-      const contentUri = await FileSystem.getContentUriAsync(destinationUri);
-
-      console.log("Generated content URI:", contentUri);
-
-      // Step 4: Save to media library to make it persistent
-      const asset = await MediaLibrary.createAssetAsync(destinationUri);
-      console.log("Created media asset:", asset);
-
-      // Step 5: Use the content URI for Instagram intent
-      const mimeType = "image/jpeg"; // You could use Mime.lookup but this is safer
-
-      const result = await IntentLauncher.startActivityAsync(
-        "com.instagram.share.ADD_TO_STORY",
-        {
-          // action: "com.instagram.share.ADD_TO_STORY",
-          type: mimeType,
-          packageName: "com.instagram.android",
-          flags: 1,
-          // extra: {
-          //   source_application: "1321011919674357", // Your Facebook App ID
-          //   interactive_asset_uri: contentUri, // Using the content URI
-          //   top_background_color: "#FF0000",
-          //   bottom_background_color: "#00FF00",
-          //   content_url: "https://snapify-app.netlify.app", // optional
-          // },
-          data: contentUri,
-          extra: {
-            "com.instagram.sharedSticker.backgroundImage": contentUri,
-            "com.instagram.sharedSticker.contentURL": "https://snapify.fun/",
-            "com.facebook.platform.extra.APPLICATION_ID": "1321011919674357",
-          },
-        }
-      );
-
-      console.log("Instagram Story share result:", result);
-    } catch (err) {
-      console.error("Error sharing to Instagram:", err);
+    // check if Instagram is installed
+    if (!isInstalled) {
       Alert.alert(
-        "Error",
-        "Failed to share to Instagram. Please make sure Instagram is installed.",
+        "Instagram not found",
+        "Please install Instagram to share your story.",
         [
           { text: "Cancel", style: "cancel" },
           {
-            text: "Install Instagram",
-            onPress: () => Linking.openURL(INSTAGRAM_STORE_URLS.android),
+            text: "Install",
+            onPress: () =>
+              Linking.openURL(
+                Platform.OS === "ios"
+                  ? INSTAGRAM_STORE_URLS.ios
+                  : INSTAGRAM_STORE_URLS.android
+              ),
           },
         ]
       );
+      return;
+    }
+    // share to Instagram on Android
+    if (Platform.OS === "android") {
+      try {
+        // Step 1: Request media library permissions first
+        const permissionResult = await MediaLibrary.requestPermissionsAsync();
+        if (!permissionResult.granted) {
+          Alert.alert("Permission needed", "Media library access is required.");
+          return;
+        }
+
+        // Step 2: Copy the image to app's cache directory first (which is accessible to FileSystem)
+        const filename = "instagram_share.jpg";
+        const destinationUri = `${FileSystem.cacheDirectory}${filename}`;
+
+        await FileSystem.copyAsync({
+          from: uri,
+          to: destinationUri,
+        });
+
+        // Step 3: Get content URI from the copied file (this should work since it's in our app's cache)
+        const contentUri = await FileSystem.getContentUriAsync(destinationUri);
+
+        console.log("Generated content URI:", contentUri);
+
+        // Step 4: Save to media library to make it persistent
+        const asset = await MediaLibrary.createAssetAsync(destinationUri);
+        console.log("Created media asset:", asset);
+
+        // Step 5: Use the content URI for Instagram intent
+        const mimeType = "image/jpeg"; // You could use Mime.lookup but this is safer
+
+        const result = await IntentLauncher.startActivityAsync(
+          "com.instagram.share.ADD_TO_STORY",
+          {
+            // action: "com.instagram.share.ADD_TO_STORY",
+            type: mimeType,
+            packageName: "com.instagram.android",
+            flags: 1,
+            // extra: {
+            //   source_application: "1321011919674357", // Your Facebook App ID
+            //   interactive_asset_uri: contentUri, // Using the content URI
+            //   top_background_color: "#FF0000",
+            //   bottom_background_color: "#00FF00",
+            //   content_url: "https://snapify-app.netlify.app", // optional
+            // },
+            data: contentUri,
+            extra: {
+              "com.instagram.sharedSticker.backgroundImage": contentUri,
+              "com.instagram.sharedSticker.contentURL": "https://snapify.fun/",
+              "com.facebook.platform.extra.APPLICATION_ID": "1321011919674357",
+            },
+          }
+        );
+
+        console.log("Instagram Story share result:", result);
+      } catch (err) {
+        console.error("Error sharing to Instagram:", err);
+        Alert.alert("Error", "Something went wrong. Please try again.");
+      }
+    } // share to Instagram on ios
+    else {
     }
   };
 
