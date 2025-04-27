@@ -26,6 +26,7 @@ import * as IntentLauncher from "expo-intent-launcher";
 import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
 import * as Mime from "react-native-mime-types"; // New package we'll use
+import ViewShot from "react-native-view-shot";
 
 const INSTAGRAM_STORE_URLS = {
   ios: "https://apps.apple.com/app/instagram/id389801252",
@@ -41,6 +42,7 @@ export default function CameraScreen() {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [mode, setMode] = useState<CameraMode>("picture");
   const [caption, setCaption] = useState("");
+  const viewShotRef = useRef<ViewShot>(null);
 
   if (!permission) {
     return null;
@@ -356,6 +358,24 @@ export default function CameraScreen() {
     }
   };
 
+  const captureAndShare = async () => {
+    if (!viewShotRef.current) return;
+
+    try {
+      // 1. Capture the ViewShot
+      const uri = await viewShotRef.current.capture();
+      console.log("Captured view at: ", uri);
+
+      if (!uri) return;
+
+      // 2. Now share it
+      await shareToInstagram(uri);
+    } catch (error) {
+      console.error("Failed to capture and share:", error);
+      Alert.alert("Error", "Something went wrong while sharing. Try again.");
+    }
+  };
+
   const renderInitialUI = () => (
     <View style={styles.container}>
       <TouchableOpacity
@@ -370,7 +390,34 @@ export default function CameraScreen() {
 
   const renderPicture = () => (
     <View style={styles.pictureContainer}>
-      <Image source={{ uri }} contentFit="cover" style={styles.photo} />
+      <ViewShot
+        ref={viewShotRef}
+        options={{ format: "jpg", quality: 0.9 }}
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "75%",
+          marginBottom: 16,
+        }}
+      >
+        <Image source={{ uri }} contentFit="cover" style={styles.photo} />
+        <Text
+          style={{
+            position: "absolute",
+            // bottom: 20,
+            // left: 20,
+            // right: 20,
+            color: "white",
+            fontSize: 24,
+            fontWeight: "bold",
+            textShadowColor: "rgba(0, 0, 0, 0.75)",
+            textShadowOffset: { width: -1, height: 1 },
+            textShadowRadius: 10,
+          }}
+        >
+          {caption}
+        </Text>
+      </ViewShot>
       <TextInput
         style={styles.captionInput}
         placeholder="Add a caption..."
@@ -384,6 +431,7 @@ export default function CameraScreen() {
           onPress={() => {
             setUri(null);
             setCameraOpen(true);
+            setCaption("");
           }}
         >
           <Camera size={22} color="white" />
@@ -391,7 +439,8 @@ export default function CameraScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => shareToInstagram(uri!)}
+          // onPress={() => shareToInstagram(uri!)}
+          onPress={captureAndShare}
         >
           <Instagram size={22} color="white" />
           <Text style={styles.startText}>Share to Instagram</Text>
@@ -456,9 +505,8 @@ const styles = StyleSheet.create({
   },
   photo: {
     width: "100%",
-    height: "75%",
+    height: "100%",
     borderRadius: 8,
-    marginBottom: 16,
   },
   addButton: {
     alignItems: "center",
