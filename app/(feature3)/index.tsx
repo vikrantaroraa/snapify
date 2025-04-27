@@ -424,41 +424,46 @@ export default function CameraScreen() {
 
   const renderPicture = () => (
     <View style={styles.pictureContainer}>
-      <GestureHandlerRootView
-        style={{ width: "100%", height: "75%", marginBottom: 16 }}
+      <View
+        style={{
+          width: "100%",
+          height: "75%",
+          marginBottom: 16,
+          borderRadius: 8,
+          overflow: "hidden",
+        }}
       >
-        <ViewShot
-          ref={viewShotRef}
-          options={{ format: "jpg", quality: 0.9 }}
-          style={{
-            position: "relative",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          <Image source={{ uri }} contentFit="cover" style={styles.photo} />
-          <PanGestureHandler onGestureEvent={panGestureEvent}>
-            <Animated.View style={[animatedStyle, { position: "absolute" }]}>
-              <Text
-                style={{
-                  // position: "absolute",
-                  // bottom: 20,
-                  // left: 20,
-                  // right: 20,
-                  color: "white",
-                  fontSize: 24,
-                  fontWeight: "bold",
-                  textShadowColor: "rgba(0, 0, 0, 0.75)",
-                  textShadowOffset: { width: -1, height: 1 },
-                  textShadowRadius: 10,
-                }}
-              >
-                {caption}
-              </Text>
-            </Animated.View>
-          </PanGestureHandler>
-        </ViewShot>
-      </GestureHandlerRootView>
+        <GestureHandlerRootView>
+          <ViewShot
+            ref={viewShotRef}
+            options={{ format: "jpg", quality: 0.9 }}
+            style={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              overflow: "hidden",
+            }}
+          >
+            <Image source={{ uri }} contentFit="cover" style={styles.photo} />
+            <PanGestureHandler onGestureEvent={panGestureEvent}>
+              <Animated.View style={[animatedStyle, { position: "absolute" }]}>
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 24,
+                    fontWeight: "bold",
+                    textShadowColor: "rgba(0, 0, 0, 0.75)",
+                    textShadowOffset: { width: -1, height: 1 },
+                    textShadowRadius: 10,
+                  }}
+                >
+                  {caption}
+                </Text>
+              </Animated.View>
+            </PanGestureHandler>
+          </ViewShot>
+        </GestureHandlerRootView>
+      </View>
       <TextInput
         style={styles.captionInput}
         placeholder="Add a caption..."
@@ -480,7 +485,7 @@ export default function CameraScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionButton}
-          // onPress={() => shareToInstagram(uri!)}
+          // onPress={() => shareToInstagram(uri!)}  // instead of sharing the image directly to instagram, we will share the viewshot which also contains the overlay caption text
           onPress={captureAndShare}
         >
           <Instagram size={22} color="white" />
@@ -547,7 +552,6 @@ const styles = StyleSheet.create({
   photo: {
     width: "100%",
     height: "100%",
-    borderRadius: 8,
   },
   addButton: {
     alignItems: "center",
