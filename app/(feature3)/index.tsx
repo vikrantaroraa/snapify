@@ -359,11 +359,13 @@ export default function CameraScreen() {
   };
 
   const captureAndShare = async () => {
-    if (!viewShotRef.current) return;
+    const capture = viewShotRef.current?.capture;
+    if (!capture) return;
 
     try {
       // 1. Capture the ViewShot
-      const uri = await viewShotRef.current.capture();
+      const uri = await (capture as () => Promise<string>)();
+
       console.log("Captured view at: ", uri);
 
       if (!uri) return;
