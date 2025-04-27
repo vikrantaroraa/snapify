@@ -27,6 +27,15 @@ import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
 import * as Mime from "react-native-mime-types"; // New package we'll use
 import ViewShot from "react-native-view-shot";
+import {
+  PanGestureHandler,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import Animated, {
+  useAnimatedGestureHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 
 const INSTAGRAM_STORE_URLS = {
   ios: "https://apps.apple.com/app/instagram/id389801252",
@@ -43,6 +52,29 @@ export default function CameraScreen() {
   const [mode, setMode] = useState<CameraMode>("picture");
   const [caption, setCaption] = useState("");
   const viewShotRef = useRef<ViewShot>(null);
+
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
+  const panGestureEvent = useAnimatedGestureHandler({
+    onStart: (event, context: any) => {
+      context.startX = translateX.value;
+      context.startY = translateY.value;
+    },
+    onActive: (event, context: any) => {
+      translateX.value = context.startX + event.translationX;
+      translateY.value = context.startY + event.translationY;
+    },
+  });
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: translateX.value },
+        { translateY: translateY.value },
+      ],
+    };
+  });
 
   if (!permission) {
     return null;
@@ -392,34 +424,41 @@ export default function CameraScreen() {
 
   const renderPicture = () => (
     <View style={styles.pictureContainer}>
-      <ViewShot
-        ref={viewShotRef}
-        options={{ format: "jpg", quality: 0.9 }}
-        style={{
-          position: "relative",
-          width: "100%",
-          height: "75%",
-          marginBottom: 16,
-        }}
+      <GestureHandlerRootView
+        style={{ width: "100%", height: "75%", marginBottom: 16 }}
       >
-        <Image source={{ uri }} contentFit="cover" style={styles.photo} />
-        <Text
+        <ViewShot
+          ref={viewShotRef}
+          options={{ format: "jpg", quality: 0.9 }}
           style={{
-            position: "absolute",
-            // bottom: 20,
-            // left: 20,
-            // right: 20,
-            color: "white",
-            fontSize: 24,
-            fontWeight: "bold",
-            textShadowColor: "rgba(0, 0, 0, 0.75)",
-            textShadowOffset: { width: -1, height: 1 },
-            textShadowRadius: 10,
+            position: "relative",
+            width: "100%",
+            height: "100%",
           }}
         >
-          {caption}
-        </Text>
-      </ViewShot>
+          <Image source={{ uri }} contentFit="cover" style={styles.photo} />
+          <PanGestureHandler onGestureEvent={panGestureEvent}>
+            <Animated.View style={[animatedStyle, { position: "absolute" }]}>
+              <Text
+                style={{
+                  // position: "absolute",
+                  // bottom: 20,
+                  // left: 20,
+                  // right: 20,
+                  color: "white",
+                  fontSize: 24,
+                  fontWeight: "bold",
+                  textShadowColor: "rgba(0, 0, 0, 0.75)",
+                  textShadowOffset: { width: -1, height: 1 },
+                  textShadowRadius: 10,
+                }}
+              >
+                {caption}
+              </Text>
+            </Animated.View>
+          </PanGestureHandler>
+        </ViewShot>
+      </GestureHandlerRootView>
       <TextInput
         style={styles.captionInput}
         placeholder="Add a caption..."
