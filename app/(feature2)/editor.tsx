@@ -347,22 +347,24 @@ export default function EditorScreen() {
           <X color="white" size={24} />
         </TouchableOpacity>
 
-        <View style={styles.toolbarCenter}>
-          <TouchableOpacity style={styles.toolbarButton} onPress={handleUndo}>
-            <Undo color="white" size={24} />
-          </TouchableOpacity>
+        {/* uncomment the below View container and its corresponding toolbarCenter styles object to separate 
+        editing control buttons from close button */}
+        {/* <View style={styles.toolbarCenter}> */}
+        <TouchableOpacity style={styles.toolbarButton} onPress={handleUndo}>
+          <Undo color="white" size={24} />
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.toolbarButton}
-            onPress={() => setShowStickers(!showStickers)}
-          >
-            <Sticker color="white" size={24} />
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.toolbarButton}
+          onPress={() => setShowStickers(!showStickers)}
+        >
+          <Sticker color="white" size={24} />
+        </TouchableOpacity>
 
-          <TouchableOpacity style={styles.toolbarButton} onPress={handleExport}>
-            <Download color="white" size={24} />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.toolbarButton} onPress={handleExport}>
+          <Download color="white" size={24} />
+        </TouchableOpacity>
+        {/* </View> */}
       </View>
     </GestureHandlerRootView>
   );
@@ -411,10 +413,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  toolbarCenter: {
-    flexDirection: "row",
-    gap: 20,
-  },
+  // Uncomment to apply center toolbar styles
+  // toolbarCenter: {
+  //   flexDirection: "row",
+  //   gap: 20,
+  // },
   toolbarButton: {
     width: 44,
     height: 44,
