@@ -218,6 +218,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     fontSize: 16,
+    marginBottom: 16,
   },
   camera: {
     flex: 1,
