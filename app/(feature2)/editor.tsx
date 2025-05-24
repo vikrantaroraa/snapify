@@ -274,7 +274,8 @@ export default function EditorScreen() {
         );
       }
     } catch (error) {
-      console.error("Export failed:", error);
+      // commented the below console so that it does not show the error message on app screen when user denies the permission to save the image to gallery
+      // console.error("Export failed:", error);
       Alert.alert("❌ Error", "Failed to export the image.");
     }
   };
