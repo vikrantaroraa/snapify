@@ -36,6 +36,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+import Slider from "@react-native-community/slider";
 
 const INSTAGRAM_STORE_URLS = {
   ios: "https://apps.apple.com/app/instagram/id389801252",
@@ -52,6 +53,7 @@ export default function CameraScreen() {
   const [mode, setMode] = useState<CameraMode>("picture");
   const [caption, setCaption] = useState("");
   const viewShotRef = useRef<ViewShot>(null);
+  const [captionFontSize, setCaptionFontSize] = useState(24); // default font size
 
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -74,7 +76,7 @@ export default function CameraScreen() {
         { translateY: translateY.value },
       ],
     };
-  });
+  }, []);
 
   if (!permission) {
     return null;
@@ -427,7 +429,7 @@ export default function CameraScreen() {
       <View
         style={{
           width: "100%",
-          height: "75%",
+          height: "65%",
           marginBottom: 16,
           borderRadius: 8,
           overflow: "hidden",
@@ -447,18 +449,20 @@ export default function CameraScreen() {
             <Image source={{ uri }} contentFit="cover" style={styles.photo} />
             <PanGestureHandler onGestureEvent={panGestureEvent}>
               <Animated.View style={[animatedStyle, { position: "absolute" }]}>
-                <Text
-                  style={{
-                    color: "white",
-                    fontSize: 24,
-                    fontWeight: "bold",
-                    textShadowColor: "rgba(0, 0, 0, 0.75)",
-                    textShadowOffset: { width: -1, height: 1 },
-                    textShadowRadius: 10,
-                  }}
-                >
-                  {caption}
-                </Text>
+                <View pointerEvents="none">
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: captionFontSize,
+                      fontWeight: "bold",
+                      textShadowColor: "rgba(0, 0, 0, 0.75)",
+                      textShadowOffset: { width: -1, height: 1 },
+                      textShadowRadius: 10,
+                    }}
+                  >
+                    {caption}
+                  </Text>
+                </View>
               </Animated.View>
             </PanGestureHandler>
           </ViewShot>
@@ -471,6 +475,20 @@ export default function CameraScreen() {
         onChangeText={setCaption}
         multiline
       />
+      <View style={{ marginVertical: 12 }}>
+        <Text style={{ color: "white", marginBottom: 4 }}>Text Size</Text>
+        <Slider
+          style={{ width: "100%", height: 40 }}
+          minimumValue={12}
+          maximumValue={60}
+          step={1}
+          value={captionFontSize}
+          onSlidingComplete={(value) => setCaptionFontSize(value)}
+          minimumTrackTintColor="#FFFFFF"
+          maximumTrackTintColor="#888"
+          thumbTintColor="#FFFFFF"
+        />
+      </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.actionButton}
