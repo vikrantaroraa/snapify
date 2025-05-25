@@ -122,6 +122,21 @@ export default function EditorScreen() {
   //   setPaths((currentPaths) => currentPaths.slice(0, -1));
   // };
 
+  // const handleUndo = () => {
+  //   if (history.length === 0) return;
+
+  //   const lastAction = history[history.length - 1];
+  //   setHistory((prev) => prev.slice(0, -1));
+
+  //   if (lastAction.type === "sticker") {
+  //     setStickers((prev) => prev.filter((s) => s.id !== lastAction.sticker.id));
+  //   } else if (lastAction.type === "stroke") {
+  //     if (canvasRef.current) {
+  //       canvasRef.current.postMessage(JSON.stringify({ type: "undo" }));
+  //     }
+  //   }
+  // };
+
   const handleUndo = () => {
     if (history.length === 0) return;
 
@@ -130,12 +145,32 @@ export default function EditorScreen() {
 
     if (lastAction.type === "sticker") {
       setStickers((prev) => prev.filter((s) => s.id !== lastAction.sticker.id));
+    } else if (lastAction.type === "move") {
+      setStickers((prev) =>
+        prev.map((s) =>
+          s.id === lastAction.stickerId
+            ? { ...s, x: lastAction.fromX, y: lastAction.fromY }
+            : s
+        )
+      );
+    } else if (lastAction.type === "scale") {
+      setStickers((prev) =>
+        prev.map((s) =>
+          s.id === lastAction.stickerId
+            ? { ...s, scale: lastAction.fromScale }
+            : s
+        )
+      );
     } else if (lastAction.type === "stroke") {
       if (canvasRef.current) {
         canvasRef.current.postMessage(JSON.stringify({ type: "undo" }));
       }
     }
   };
+
+  useEffect(() => {
+    console.log("History stack:", history);
+  }, [history]);
 
   function StickerComponent({
     id,
@@ -198,24 +233,72 @@ export default function EditorScreen() {
   }
 
   // Move the state update OUTSIDE the gesture handler
+  // const updateStickerPosition = (
+  //   stickerId: number,
+  //   newX: number,
+  //   newY: number
+  // ) => {
+  //   setStickers((prevStickers) =>
+  //     prevStickers.map((sticker) =>
+  //       sticker.id === stickerId ? { ...sticker, x: newX, y: newY } : sticker
+  //     )
+  //   );
+  // };
+
   const updateStickerPosition = (
     stickerId: number,
     newX: number,
     newY: number
   ) => {
-    setStickers((prevStickers) =>
-      prevStickers.map((sticker) =>
+    setStickers((prevStickers) => {
+      const oldSticker = prevStickers.find((s) => s.id === stickerId);
+      if (!oldSticker) return prevStickers;
+
+      setHistory((prev) => [
+        ...prev,
+        {
+          type: "move",
+          stickerId,
+          fromX: oldSticker.x,
+          fromY: oldSticker.y,
+          toX: newX,
+          toY: newY,
+        },
+      ]);
+
+      return prevStickers.map((sticker) =>
         sticker.id === stickerId ? { ...sticker, x: newX, y: newY } : sticker
-      )
-    );
+      );
+    });
   };
 
+  // const updateStickerScale = (stickerId: number, newScale: number) => {
+  //   setStickers((prevStickers) =>
+  //     prevStickers.map((sticker) =>
+  //       sticker.id === stickerId ? { ...sticker, scale: newScale } : sticker
+  //     )
+  //   );
+  // };
+
   const updateStickerScale = (stickerId: number, newScale: number) => {
-    setStickers((prevStickers) =>
-      prevStickers.map((sticker) =>
+    setStickers((prevStickers) => {
+      const oldSticker = prevStickers.find((s) => s.id === stickerId);
+      if (!oldSticker) return prevStickers;
+
+      setHistory((prev) => [
+        ...prev,
+        {
+          type: "scale",
+          stickerId,
+          fromScale: oldSticker.scale,
+          toScale: newScale,
+        },
+      ]);
+
+      return prevStickers.map((sticker) =>
         sticker.id === stickerId ? { ...sticker, scale: newScale } : sticker
-      )
-    );
+      );
+    });
   };
 
   //   const canvasHtml = `
