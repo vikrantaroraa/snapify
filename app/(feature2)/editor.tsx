@@ -18,7 +18,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { Check, X, Sticker, Download, Undo } from "lucide-react-native";
+import { Check, X, Sticker, Download, Undo, Redo } from "lucide-react-native";
 import * as MediaLibrary from "expo-media-library";
 import * as ImageManipulator from "expo-image-manipulator";
 import { WebView } from "react-native-webview";
@@ -53,6 +53,7 @@ export default function EditorScreen() {
   const [paths, setPaths] = useState<any[]>([]);
   const [drawingDataUrl, setDrawingDataUrl] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
+  const [redoStack, setRedoStack] = useState<any[]>([]);
   const router = useRouter();
   const viewShotRef = useRef(null);
 
@@ -114,6 +115,7 @@ export default function EditorScreen() {
         ...prevHistory,
         { type: "sticker", sticker: newSticker },
       ]);
+      setRedoStack([]); // 👈 clear redo
       return [...prevStickers, newSticker];
     });
   };
@@ -137,11 +139,42 @@ export default function EditorScreen() {
   //   }
   // };
 
+  // const handleUndo = () => {
+  //   if (history.length === 0) return;
+
+  //   const lastAction = history[history.length - 1];
+  //   setHistory((prev) => prev.slice(0, -1));
+
+  //   if (lastAction.type === "sticker") {
+  //     setStickers((prev) => prev.filter((s) => s.id !== lastAction.sticker.id));
+  //   } else if (lastAction.type === "move") {
+  //     setStickers((prev) =>
+  //       prev.map((s) =>
+  //         s.id === lastAction.stickerId
+  //           ? { ...s, x: lastAction.fromX, y: lastAction.fromY }
+  //           : s
+  //       )
+  //     );
+  //   } else if (lastAction.type === "scale") {
+  //     setStickers((prev) =>
+  //       prev.map((s) =>
+  //         s.id === lastAction.stickerId
+  //           ? { ...s, scale: lastAction.fromScale }
+  //           : s
+  //       )
+  //     );
+  //   } else if (lastAction.type === "stroke") {
+  //     if (canvasRef.current) {
+  //       canvasRef.current.postMessage(JSON.stringify({ type: "undo" }));
+  //     }
+  //   }
+  // };
   const handleUndo = () => {
     if (history.length === 0) return;
 
     const lastAction = history[history.length - 1];
     setHistory((prev) => prev.slice(0, -1));
+    setRedoStack((prev) => [...prev, lastAction]); // 👈 push to redo
 
     if (lastAction.type === "sticker") {
       setStickers((prev) => prev.filter((s) => s.id !== lastAction.sticker.id));
@@ -164,6 +197,36 @@ export default function EditorScreen() {
     } else if (lastAction.type === "stroke") {
       if (canvasRef.current) {
         canvasRef.current.postMessage(JSON.stringify({ type: "undo" }));
+      }
+    }
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length === 0) return;
+
+    const lastRedo = redoStack[redoStack.length - 1];
+    setRedoStack((prev) => prev.slice(0, -1));
+    setHistory((prev) => [...prev, lastRedo]); // 👈 move back to history
+
+    if (lastRedo.type === "sticker") {
+      setStickers((prev) => [...prev, lastRedo.sticker]);
+    } else if (lastRedo.type === "move") {
+      setStickers((prev) =>
+        prev.map((s) =>
+          s.id === lastRedo.stickerId
+            ? { ...s, x: lastRedo.toX, y: lastRedo.toY }
+            : s
+        )
+      );
+    } else if (lastRedo.type === "scale") {
+      setStickers((prev) =>
+        prev.map((s) =>
+          s.id === lastRedo.stickerId ? { ...s, scale: lastRedo.toScale } : s
+        )
+      );
+    } else if (lastRedo.type === "stroke") {
+      if (canvasRef.current) {
+        canvasRef.current.postMessage(JSON.stringify({ type: "redo" }));
       }
     }
   };
@@ -266,6 +329,8 @@ export default function EditorScreen() {
         },
       ]);
 
+      setRedoStack([]); // 👈 clear redo
+
       return prevStickers.map((sticker) =>
         sticker.id === stickerId ? { ...sticker, x: newX, y: newY } : sticker
       );
@@ -294,6 +359,8 @@ export default function EditorScreen() {
           toScale: newScale,
         },
       ]);
+
+      setRedoStack([]); // 👈 clear redo
 
       return prevStickers.map((sticker) =>
         sticker.id === stickerId ? { ...sticker, scale: newScale } : sticker
@@ -579,6 +646,10 @@ export default function EditorScreen() {
           onPress={() => setShowStickers(!showStickers)}
         >
           <Sticker color="white" size={24} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.toolbarButton} onPress={handleRedo}>
+          <Redo color="white" size={24} />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.toolbarButton} onPress={handleExport}>
