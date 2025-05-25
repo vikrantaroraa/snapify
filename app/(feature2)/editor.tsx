@@ -52,6 +52,7 @@ export default function EditorScreen() {
   const canvasRef = useRef<WebView>(null);
   const [paths, setPaths] = useState<any[]>([]);
   const [drawingDataUrl, setDrawingDataUrl] = useState<string | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
   const router = useRouter();
   const viewShotRef = useRef(null);
 
@@ -74,6 +75,25 @@ export default function EditorScreen() {
     checkFileType(uri);
   }, [uri]);
 
+  // const handleAddSticker = (stickerIndex: number) => {
+  //   if (!imageSize.width || !imageSize.height) return;
+
+  //   const stickerSize = 100;
+  //   const centerX = imageSize.width / 2 - stickerSize / 2;
+  //   const centerY = imageSize.height / 2 - stickerSize / 2;
+
+  //   setStickers((prevStickers) => [
+  //     ...prevStickers,
+  //     {
+  //       id: Date.now(),
+  //       uri: STICKERS[stickerIndex],
+  //       x: centerX,
+  //       y: centerY,
+  //       scale: 1,
+  //     },
+  //   ]);
+  // };
+
   const handleAddSticker = (stickerIndex: number) => {
     if (!imageSize.width || !imageSize.height) return;
 
@@ -81,20 +101,40 @@ export default function EditorScreen() {
     const centerX = imageSize.width / 2 - stickerSize / 2;
     const centerY = imageSize.height / 2 - stickerSize / 2;
 
-    setStickers((prevStickers) => [
-      ...prevStickers,
-      {
-        id: Date.now(),
-        uri: STICKERS[stickerIndex],
-        x: centerX,
-        y: centerY,
-        scale: 1,
-      },
-    ]);
+    const newSticker = {
+      id: Date.now(),
+      uri: STICKERS[stickerIndex],
+      x: centerX,
+      y: centerY,
+      scale: 1,
+    };
+
+    setStickers((prevStickers) => {
+      setHistory((prevHistory) => [
+        ...prevHistory,
+        { type: "sticker", sticker: newSticker },
+      ]);
+      return [...prevStickers, newSticker];
+    });
   };
 
+  // const handleUndo = () => {
+  //   setPaths((currentPaths) => currentPaths.slice(0, -1));
+  // };
+
   const handleUndo = () => {
-    setPaths((currentPaths) => currentPaths.slice(0, -1));
+    if (history.length === 0) return;
+
+    const lastAction = history[history.length - 1];
+    setHistory((prev) => prev.slice(0, -1));
+
+    if (lastAction.type === "sticker") {
+      setStickers((prev) => prev.filter((s) => s.id !== lastAction.sticker.id));
+    } else if (lastAction.type === "stroke") {
+      if (canvasRef.current) {
+        canvasRef.current.postMessage(JSON.stringify({ type: "undo" }));
+      }
+    }
   };
 
   function StickerComponent({
@@ -178,66 +218,161 @@ export default function EditorScreen() {
     );
   };
 
+  //   const canvasHtml = `
+  //   <html>
+  //     <body style="margin: 0; overflow: hidden; touch-action: none;">
+  //       <canvas id="drawingCanvas" style="width: 100%; height: 100%;"></canvas>
+  //       <script>
+  //         const canvas = document.getElementById('drawingCanvas');
+  //         const ctx = canvas.getContext('2d');
+  //         let isDrawing = false;
+  //         let lastX = 0;
+  //         let lastY = 0;
+
+  //         function resize() {
+  //           canvas.width = window.innerWidth;
+  //           canvas.height = window.innerHeight;
+  //         }
+
+  //         window.addEventListener('resize', resize);
+  //         resize();
+
+  //         canvas.addEventListener('touchstart', handleStart);
+  //         canvas.addEventListener('touchmove', handleMove);
+  //         canvas.addEventListener('touchend', handleEnd);
+
+  //         function handleStart(e) {
+  //           e.preventDefault();
+  //           isDrawing = true;
+  //           const touch = e.touches[0];
+  //           [lastX, lastY] = [touch.clientX, touch.clientY];
+  //         }
+
+  //         function handleMove(e) {
+  //           if (!isDrawing) return;
+  //           e.preventDefault();
+  //           const touch = e.touches[0];
+  //           const currentX = touch.clientX;
+  //           const currentY = touch.clientY;
+
+  //           ctx.beginPath();
+  //           ctx.moveTo(lastX, lastY);
+  //           ctx.lineTo(currentX, currentY);
+  //           ctx.strokeStyle = '#ff0000';
+  //           ctx.lineWidth = 3;
+  //           ctx.lineCap = 'round';
+  //           ctx.stroke();
+
+  //           [lastX, lastY] = [currentX, currentY];
+  //         }
+
+  //         function handleEnd() {
+  //           isDrawing = false;
+  //         }
+
+  //         // ✅ Capture drawing as base64 and send it to React Native
+  //         function exportDrawing() {
+  //           const dataUrl = canvas.toDataURL('image/png');
+  //           window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'export', dataUrl }));
+  //         }
+  //       </script>
+  //     </body>
+  //   </html>
+  // `;
+
   const canvasHtml = `
-  <html>
-    <body style="margin: 0; overflow: hidden; touch-action: none;">
-      <canvas id="drawingCanvas" style="width: 100%; height: 100%;"></canvas>
-      <script>
-        const canvas = document.getElementById('drawingCanvas');
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        let lastX = 0;
-        let lastY = 0;
+<html>
+  <body style="margin:0; overflow:hidden; touch-action:none;">
+    <canvas id="drawingCanvas" style="width:100%; height:100%;"></canvas>
+    <script>
+      const canvas = document.getElementById('drawingCanvas');
+      const ctx = canvas.getContext('2d');
+      let isDrawing = false;
+      let lastX = 0;
+      let lastY = 0;
+      let paths = []; // Store all strokes here
 
-        function resize() {
-          canvas.width = window.innerWidth;
-          canvas.height = window.innerHeight;
-        }
-        
-        window.addEventListener('resize', resize);
-        resize();
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        redraw();
+      }
 
-        canvas.addEventListener('touchstart', handleStart);
-        canvas.addEventListener('touchmove', handleMove);
-        canvas.addEventListener('touchend', handleEnd);
-
-        function handleStart(e) {
-          e.preventDefault();
-          isDrawing = true;
-          const touch = e.touches[0];
-          [lastX, lastY] = [touch.clientX, touch.clientY];
-        }
-
-        function handleMove(e) {
-          if (!isDrawing) return;
-          e.preventDefault();
-          const touch = e.touches[0];
-          const currentX = touch.clientX;
-          const currentY = touch.clientY;
-
+      function redraw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const path of paths) {
           ctx.beginPath();
-          ctx.moveTo(lastX, lastY);
-          ctx.lineTo(currentX, currentY);
+          ctx.moveTo(path[0].x, path[0].y);
+          for (let i = 1; i < path.length; i++) {
+            ctx.lineTo(path[i].x, path[i].y);
+          }
           ctx.strokeStyle = '#ff0000';
           ctx.lineWidth = 3;
           ctx.lineCap = 'round';
           ctx.stroke();
-
-          [lastX, lastY] = [currentX, currentY];
         }
+      }
 
-        function handleEnd() {
-          isDrawing = false;
-        }
+      window.addEventListener('resize', resize);
+      resize();
 
-        // ✅ Capture drawing as base64 and send it to React Native
-        function exportDrawing() {
-          const dataUrl = canvas.toDataURL('image/png');
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'export', dataUrl }));
+      let currentPath = [];
+
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isDrawing = true;
+        const touch = e.touches[0];
+        lastX = touch.clientX;
+        lastY = touch.clientY;
+        currentPath = [{ x: lastX, y: lastY }];
+      });
+
+      canvas.addEventListener('touchmove', (e) => {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const x = touch.clientX;
+        const y = touch.clientY;
+
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        currentPath.push({ x, y });
+
+        lastX = x;
+        lastY = y;
+      });
+
+      canvas.addEventListener('touchend', () => {
+        isDrawing = false;
+        if (currentPath.length > 0) {
+          paths.push(currentPath);
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'strokeAdded' }));
         }
-      </script>
-    </body>
-  </html>
+        currentPath = [];
+      });
+
+      function exportDrawing() {
+        const dataUrl = canvas.toDataURL('image/png');
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'export', dataUrl }));
+      }
+
+      // Receive undo signal from React Native
+      document.addEventListener('message', function(event) {
+        const message = JSON.parse(event.data);
+        if (message.type === 'undo') {
+          paths.pop();
+          redraw();
+        }
+      });
+    </script>
+  </body>
+</html>
 `;
 
   async function checkFileType(uri: string) {
@@ -304,6 +439,8 @@ export default function EditorScreen() {
               if (message.type === "export") {
                 console.log("Captured Drawing:", message.dataUrl); // ✅ Verify Base64 output
                 setDrawingDataUrl(message.dataUrl); // ✅ Save drawing base64
+              } else if (message.type === "strokeAdded") {
+                setHistory((prev) => [...prev, { type: "stroke" }]);
               }
             }}
           />
