@@ -15,6 +15,7 @@ import {
   Platform,
   Linking,
   Alert,
+  ScrollView,
 } from "react-native";
 import { Image } from "expo-image";
 import { FontAwesome6 } from "@expo/vector-icons";
@@ -44,6 +45,149 @@ const INSTAGRAM_STORE_URLS = {
     "https://play.google.com/store/apps/details?id=com.instagram.android",
 };
 
+const COLORS = [
+  { name: "White", value: "#ffffff" },
+  { name: "Black", value: "#000000" },
+  { name: "Red", value: "#ff0000" },
+  { name: "Green", value: "#008000" },
+  { name: "Blue", value: "#0000ff" },
+  { name: "Yellow", value: "#ffff00" },
+  { name: "Cyan", value: "#00ffff" },
+  { name: "Magenta", value: "#ff00ff" },
+
+  { name: "AliceBlue", value: "#f0f8ff" },
+  { name: "AntiqueWhite", value: "#faebd7" },
+  { name: "Aquamarine", value: "#7fffd4" },
+  { name: "Azure", value: "#f0ffff" },
+  { name: "Beige", value: "#f5f5dc" },
+  { name: "Bisque", value: "#ffe4c4" },
+  { name: "BlanchedAlmond", value: "#ffebcd" },
+  { name: "BlueViolet", value: "#8a2be2" },
+  { name: "Brown", value: "#a52a2a" },
+  { name: "BurlyWood", value: "#deb887" },
+  { name: "CadetBlue", value: "#5f9ea0" },
+  { name: "Chartreuse", value: "#7fff00" },
+  { name: "Chocolate", value: "#d2691e" },
+  { name: "Coral", value: "#ff7f50" },
+  { name: "CornflowerBlue", value: "#6495ed" },
+  { name: "Cornsilk", value: "#fff8dc" },
+  { name: "Crimson", value: "#dc143c" },
+  { name: "DarkBlue", value: "#00008b" },
+  { name: "DarkCyan", value: "#008b8b" },
+  { name: "DarkGoldenRod", value: "#b8860b" },
+  { name: "DarkGray", value: "#a9a9a9" },
+  { name: "DarkGreen", value: "#006400" },
+  { name: "DarkKhaki", value: "#bdb76b" },
+  { name: "DarkMagenta", value: "#8b008b" },
+  { name: "DarkOliveGreen", value: "#556b2f" },
+  { name: "DarkOrange", value: "#ff8c00" },
+  { name: "DarkOrchid", value: "#9932cc" },
+  { name: "DarkRed", value: "#8b0000" },
+  { name: "DarkSalmon", value: "#e9967a" },
+  { name: "DarkSeaGreen", value: "#8fbc8f" },
+  { name: "DarkSlateBlue", value: "#483d8b" },
+  { name: "DarkSlateGrey", value: "#2f4f4f" },
+  { name: "DarkTurquoise", value: "#00ced1" },
+  { name: "DarkViolet", value: "#9400d3" },
+  { name: "DeepPink", value: "#ff1493" },
+  { name: "DeepSkyBlue", value: "#00bfff" },
+  { name: "DimGray", value: "#696969" },
+  { name: "DodgerBlue", value: "#1e90ff" },
+  { name: "FireBrick", value: "#b22222" },
+  { name: "FloralWhite", value: "#fffaf0" },
+  { name: "ForestGreen", value: "#228b22" },
+  { name: "Gainsboro", value: "#dcdcdc" },
+  { name: "GhostWhite", value: "#f8f8ff" },
+  { name: "Gold", value: "#ffd700" },
+  { name: "GoldenRod", value: "#daa520" },
+  { name: "Gray", value: "#808080" },
+  { name: "GreenYellow", value: "#adff2f" },
+  { name: "HoneyDew", value: "#f0fff0" },
+  { name: "HotPink", value: "#ff69b4" },
+  { name: "IndianRed", value: "#cd5c5c" },
+  { name: "Indigo", value: "#4b0082" },
+  { name: "Ivory", value: "#fffff0" },
+  { name: "Khaki", value: "#f0e68c" },
+  { name: "Lavender", value: "#e6e6fa" },
+  { name: "LavenderBlush", value: "#fff0f5" },
+  { name: "LawnGreen", value: "#7cfc00" },
+  { name: "LemonChiffon", value: "#fffacd" },
+  { name: "LightBlue", value: "#add8e6" },
+  { name: "LightCoral", value: "#f08080" },
+  { name: "LightCyan", value: "#e0ffff" },
+  { name: "LightGoldenRodYellow", value: "#fafad2" },
+  { name: "LightGray", value: "#d3d3d3" },
+  { name: "LightGreen", value: "#90ee90" },
+  { name: "LightPink", value: "#ffb6c1" },
+  { name: "LightSalmon", value: "#ffa07a" },
+  { name: "LightSeaGreen", value: "#20b2aa" },
+  { name: "LightSkyBlue", value: "#87cefa" },
+  { name: "LightSlateGrey", value: "#778899" },
+  { name: "LightSteelBlue", value: "#b0c4de" },
+  { name: "LightYellow", value: "#ffffe0" },
+  { name: "Lime", value: "#00ff00" },
+  { name: "LimeGreen", value: "#32cd32" },
+  { name: "Linen", value: "#faf0e6" },
+  { name: "Maroon", value: "#800000" },
+  { name: "MediumAquaMarine", value: "#66cdaa" },
+  { name: "MediumBlue", value: "#0000cd" },
+  { name: "MediumOrchid", value: "#ba55d3" },
+  { name: "MediumPurple", value: "#9370db" },
+  { name: "MediumSeaGreen", value: "#3cb371" },
+  { name: "MediumSlateBlue", value: "#7b68ee" },
+  { name: "MediumSpringGreen", value: "#00fa9a" },
+  { name: "MediumTurquoise", value: "#48d1cc" },
+  { name: "MediumVioletRed", value: "#c71585" },
+  { name: "MidnightBlue", value: "#191970" },
+  { name: "MintCream", value: "#f5fffa" },
+  { name: "MistyRose", value: "#ffe4e1" },
+  { name: "Moccasin", value: "#ffe4b5" },
+  { name: "NavajoWhite", value: "#ffdead" },
+  { name: "Navy", value: "#000080" },
+  { name: "OldLace", value: "#fdf5e6" },
+  { name: "Olive", value: "#808000" },
+  { name: "OliveDrab", value: "#6b8e23" },
+  { name: "Orange", value: "#ffa500" },
+  { name: "OrangeRed", value: "#ff4500" },
+  { name: "Orchid", value: "#da70d6" },
+  { name: "PaleGoldenRod", value: "#eee8aa" },
+  { name: "PaleGreen", value: "#98fb98" },
+  { name: "PaleTurquoise", value: "#afeeee" },
+  { name: "PaleVioletRed", value: "#db7093" },
+  { name: "PapayaWhip", value: "#ffefd5" },
+  { name: "PeachPuff", value: "#ffdab9" },
+  { name: "Peru", value: "#cd853f" },
+  { name: "Pink", value: "#ffc0cb" },
+  { name: "Plum", value: "#dda0dd" },
+  { name: "PowderBlue", value: "#b0e0e6" },
+  { name: "Purple", value: "#800080" },
+  { name: "RebeccaPurple", value: "#663399" },
+  { name: "RosyBrown", value: "#bc8f8f" },
+  { name: "RoyalBlue", value: "#4169e1" },
+  { name: "SaddleBrown", value: "#8b4513" },
+  { name: "Salmon", value: "#fa8072" },
+  { name: "SandyBrown", value: "#f4a460" },
+  { name: "SeaGreen", value: "#2e8b57" },
+  { name: "Seashell", value: "#fff5ee" },
+  { name: "Sienna", value: "#a0522d" },
+  { name: "Silver", value: "#c0c0c0" },
+  { name: "SkyBlue", value: "#87ceeb" },
+  { name: "SlateBlue", value: "#6a5acd" },
+  { name: "SlateGray", value: "#708090" },
+  { name: "Snow", value: "#fffafa" },
+  { name: "SpringGreen", value: "#00ff7f" },
+  { name: "SteelBlue", value: "#4682b4" },
+  { name: "Tan", value: "#d2b48c" },
+  { name: "Teal", value: "#008080" },
+  { name: "Thistle", value: "#d8bfd8" },
+  { name: "Tomato", value: "#ff6347" },
+  { name: "Turquoise", value: "#40e0d0" },
+  { name: "Violet", value: "#ee82ee" },
+  { name: "Wheat", value: "#f5deb3" },
+  { name: "WhiteSmoke", value: "#f5f5f5" },
+  { name: "YellowGreen", value: "#9acd32" },
+];
+
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const ref = useRef<CameraView>(null);
@@ -54,6 +198,7 @@ export default function CameraScreen() {
   const [caption, setCaption] = useState("");
   const viewShotRef = useRef<ViewShot>(null);
   const [captionFontSize, setCaptionFontSize] = useState(24); // default font size
+  const [captionTextColor, setCaptionTextColor] = useState("#FFFFFF"); // default white
 
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -126,6 +271,8 @@ export default function CameraScreen() {
   const toggleFacing = () => {
     setFacing((prev) => (prev === "back" ? "front" : "back"));
   };
+
+  // ------------------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX------------------------
 
   // const shareToInstagram2 = async () => {
   //   // await Linking.openURL(
@@ -303,6 +450,8 @@ export default function CameraScreen() {
   //   }
   // };
 
+  // ------------------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX------------------------
+
   const shareToInstagram = async (uri: string) => {
     const intentUrl = "instagram://story-camera";
     const isInstalled = await Linking.canOpenURL(intentUrl);
@@ -425,11 +574,11 @@ export default function CameraScreen() {
   );
 
   const renderPicture = () => (
-    <View style={styles.pictureContainer}>
+    <ScrollView style={styles.pictureContainer}>
       <View
         style={{
           width: "100%",
-          height: "65%",
+          height: 500,
           marginBottom: 16,
           borderRadius: 8,
           overflow: "hidden",
@@ -452,7 +601,7 @@ export default function CameraScreen() {
                 <View pointerEvents="none">
                   <Text
                     style={{
-                      color: "white",
+                      color: captionTextColor,
                       fontSize: captionFontSize,
                       fontWeight: "bold",
                       textShadowColor: "rgba(0, 0, 0, 0.75)",
@@ -475,10 +624,14 @@ export default function CameraScreen() {
         onChangeText={setCaption}
         multiline
       />
-      <View style={{ marginVertical: 12 }}>
+      <View style={{ marginVertical: 8 }}>
         <Text style={{ color: "white", marginBottom: 4 }}>Text Size</Text>
         <Slider
-          style={{ width: "100%", height: 40 }}
+          style={{
+            width: "100%",
+            height: 34,
+            padding: 0,
+          }}
           minimumValue={12}
           maximumValue={60}
           step={1}
@@ -489,6 +642,30 @@ export default function CameraScreen() {
           thumbTintColor="#FFFFFF"
         />
       </View>
+      <View style={{ marginBottom: 20 }}>
+        <Text style={{ color: "white", marginBottom: 18 }}>Text Color</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.colorsPanel}
+        >
+          {COLORS.map(({ name, value }) => (
+            <TouchableOpacity
+              key={value}
+              onPress={() => setCaptionTextColor(value)}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                backgroundColor: value,
+                borderWidth: value === "#000000" ? 1 : 0, // add border for black swatch
+                borderColor: "#888",
+              }}
+            />
+          ))}
+        </ScrollView>
+      </View>
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.actionButton}
@@ -510,7 +687,7 @@ export default function CameraScreen() {
           <Text style={styles.startText}>Share to Instagram</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 
   const renderCamera = () => (
@@ -556,6 +733,7 @@ const styles = StyleSheet.create({
   },
   pictureContainer: {
     paddingTop: 12,
+    flexGrow: 1,
   },
   permissionText: {
     color: "#fff",
@@ -594,6 +772,14 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  colorsPanel: {
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    flexDirection: "row",
+    alignItems: "flex-end",
+    paddingHorizontal: 10,
+    gap: 10,
   },
   startButton: {
     backgroundColor: "#333",
@@ -637,6 +823,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 12,
+    marginTop: 20,
+    paddingBottom: 30,
   },
   actionButton: {
     flexDirection: "row",
