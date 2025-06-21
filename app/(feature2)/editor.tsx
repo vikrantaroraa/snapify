@@ -440,7 +440,8 @@ export default function EditorScreen() {
       let isDrawing = false;
       let lastX = 0;
       let lastY = 0;
-      let paths = []; // Store all strokes here
+      let paths = [];
+      let redoPaths = [];
 
       function resize() {
         canvas.width = window.innerWidth;
@@ -502,6 +503,7 @@ export default function EditorScreen() {
         isDrawing = false;
         if (currentPath.length > 0) {
           paths.push(currentPath);
+          redoPaths = []; // ❗️ Clear redo stack when a new stroke is made
           window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'strokeAdded' }));
         }
         currentPath = [];
@@ -515,8 +517,17 @@ export default function EditorScreen() {
       // Receive undo signal from React Native
       document.addEventListener('message', function(event) {
         const message = JSON.parse(event.data);
-        if (message.type === 'undo') {
-          paths.pop();
+      if (message.type === 'undo') {
+        const undone = paths.pop();
+        if (undone) {
+          redoPaths.push(undone);
+        }
+        redraw();
+      } else if (message.type === 'redo') {
+          const redone = redoPaths.pop();
+          if (redone) {
+            paths.push(redone);
+          }
           redraw();
         }
       });
