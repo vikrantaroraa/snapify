@@ -564,15 +564,12 @@ export default function EditorScreen() {
         const asset = await MediaLibrary.createAssetAsync(uri);
         await MediaLibrary.createAlbumAsync("Image Edits", asset, false);
 
-        Alert.alert(
-          "✅ Saved!",
-          "Your edited image has been saved to your gallery."
-        );
+        Alert.alert("✅ Saved", "Your edited image has been saved to gallery.");
       }
     } catch (error) {
       // commented the below console so that it does not show the error message on app screen when user denies the permission to save the image to gallery
       // console.error("Export failed:", error);
-      Alert.alert("❌ Error", "Failed to export the image.");
+      Alert.alert("❌ Permission Denied", "Failed to export the image.");
     }
   };
 
