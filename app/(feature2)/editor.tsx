@@ -55,7 +55,7 @@ export default function EditorScreen() {
   const [history, setHistory] = useState<any[]>([]);
   const [redoStack, setRedoStack] = useState<any[]>([]);
   const router = useRouter();
-  const viewShotRef = useRef(null);
+  const viewShotRef = useRef<InstanceType<typeof ViewShot>>(null);
 
   // const handleBack = () => {
   //   if (router && typeof router.back === "function") {
@@ -409,7 +409,15 @@ export default function EditorScreen() {
   const handleExport = async () => {
     try {
       if (viewShotRef.current) {
-        const uri = await viewShotRef.current.capture();
+        const capture = viewShotRef.current?.capture;
+
+        if (typeof capture !== "function") {
+          throw new Error("Capture function not available");
+        }
+
+        const uri = await capture(); // ✅ Now TS knows it's a function
+
+        if (!uri) throw new Error("Failed to capture image");
 
         const asset = await MediaLibrary.createAssetAsync(uri);
         await MediaLibrary.createAlbumAsync("Image Edits", asset, false);
