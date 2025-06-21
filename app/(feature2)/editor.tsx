@@ -76,25 +76,6 @@ export default function EditorScreen() {
     checkFileType(uri);
   }, [uri]);
 
-  // const handleAddSticker = (stickerIndex: number) => {
-  //   if (!imageSize.width || !imageSize.height) return;
-
-  //   const stickerSize = 100;
-  //   const centerX = imageSize.width / 2 - stickerSize / 2;
-  //   const centerY = imageSize.height / 2 - stickerSize / 2;
-
-  //   setStickers((prevStickers) => [
-  //     ...prevStickers,
-  //     {
-  //       id: Date.now(),
-  //       uri: STICKERS[stickerIndex],
-  //       x: centerX,
-  //       y: centerY,
-  //       scale: 1,
-  //     },
-  //   ]);
-  // };
-
   const handleAddSticker = (stickerIndex: number) => {
     if (!imageSize.width || !imageSize.height) return;
 
@@ -120,55 +101,6 @@ export default function EditorScreen() {
     });
   };
 
-  // const handleUndo = () => {
-  //   setPaths((currentPaths) => currentPaths.slice(0, -1));
-  // };
-
-  // const handleUndo = () => {
-  //   if (history.length === 0) return;
-
-  //   const lastAction = history[history.length - 1];
-  //   setHistory((prev) => prev.slice(0, -1));
-
-  //   if (lastAction.type === "sticker") {
-  //     setStickers((prev) => prev.filter((s) => s.id !== lastAction.sticker.id));
-  //   } else if (lastAction.type === "stroke") {
-  //     if (canvasRef.current) {
-  //       canvasRef.current.postMessage(JSON.stringify({ type: "undo" }));
-  //     }
-  //   }
-  // };
-
-  // const handleUndo = () => {
-  //   if (history.length === 0) return;
-
-  //   const lastAction = history[history.length - 1];
-  //   setHistory((prev) => prev.slice(0, -1));
-
-  //   if (lastAction.type === "sticker") {
-  //     setStickers((prev) => prev.filter((s) => s.id !== lastAction.sticker.id));
-  //   } else if (lastAction.type === "move") {
-  //     setStickers((prev) =>
-  //       prev.map((s) =>
-  //         s.id === lastAction.stickerId
-  //           ? { ...s, x: lastAction.fromX, y: lastAction.fromY }
-  //           : s
-  //       )
-  //     );
-  //   } else if (lastAction.type === "scale") {
-  //     setStickers((prev) =>
-  //       prev.map((s) =>
-  //         s.id === lastAction.stickerId
-  //           ? { ...s, scale: lastAction.fromScale }
-  //           : s
-  //       )
-  //     );
-  //   } else if (lastAction.type === "stroke") {
-  //     if (canvasRef.current) {
-  //       canvasRef.current.postMessage(JSON.stringify({ type: "undo" }));
-  //     }
-  //   }
-  // };
   const handleUndo = () => {
     if (history.length === 0) return;
 
@@ -296,18 +228,6 @@ export default function EditorScreen() {
   }
 
   // Move the state update OUTSIDE the gesture handler
-  // const updateStickerPosition = (
-  //   stickerId: number,
-  //   newX: number,
-  //   newY: number
-  // ) => {
-  //   setStickers((prevStickers) =>
-  //     prevStickers.map((sticker) =>
-  //       sticker.id === stickerId ? { ...sticker, x: newX, y: newY } : sticker
-  //     )
-  //   );
-  // };
-
   const updateStickerPosition = (
     stickerId: number,
     newX: number,
@@ -337,14 +257,6 @@ export default function EditorScreen() {
     });
   };
 
-  // const updateStickerScale = (stickerId: number, newScale: number) => {
-  //   setStickers((prevStickers) =>
-  //     prevStickers.map((sticker) =>
-  //       sticker.id === stickerId ? { ...sticker, scale: newScale } : sticker
-  //     )
-  //   );
-  // };
-
   const updateStickerScale = (stickerId: number, newScale: number) => {
     setStickers((prevStickers) => {
       const oldSticker = prevStickers.find((s) => s.id === stickerId);
@@ -367,68 +279,6 @@ export default function EditorScreen() {
       );
     });
   };
-
-  //   const canvasHtml = `
-  //   <html>
-  //     <body style="margin: 0; overflow: hidden; touch-action: none;">
-  //       <canvas id="drawingCanvas" style="width: 100%; height: 100%;"></canvas>
-  //       <script>
-  //         const canvas = document.getElementById('drawingCanvas');
-  //         const ctx = canvas.getContext('2d');
-  //         let isDrawing = false;
-  //         let lastX = 0;
-  //         let lastY = 0;
-
-  //         function resize() {
-  //           canvas.width = window.innerWidth;
-  //           canvas.height = window.innerHeight;
-  //         }
-
-  //         window.addEventListener('resize', resize);
-  //         resize();
-
-  //         canvas.addEventListener('touchstart', handleStart);
-  //         canvas.addEventListener('touchmove', handleMove);
-  //         canvas.addEventListener('touchend', handleEnd);
-
-  //         function handleStart(e) {
-  //           e.preventDefault();
-  //           isDrawing = true;
-  //           const touch = e.touches[0];
-  //           [lastX, lastY] = [touch.clientX, touch.clientY];
-  //         }
-
-  //         function handleMove(e) {
-  //           if (!isDrawing) return;
-  //           e.preventDefault();
-  //           const touch = e.touches[0];
-  //           const currentX = touch.clientX;
-  //           const currentY = touch.clientY;
-
-  //           ctx.beginPath();
-  //           ctx.moveTo(lastX, lastY);
-  //           ctx.lineTo(currentX, currentY);
-  //           ctx.strokeStyle = '#ff0000';
-  //           ctx.lineWidth = 3;
-  //           ctx.lineCap = 'round';
-  //           ctx.stroke();
-
-  //           [lastX, lastY] = [currentX, currentY];
-  //         }
-
-  //         function handleEnd() {
-  //           isDrawing = false;
-  //         }
-
-  //         // ✅ Capture drawing as base64 and send it to React Native
-  //         function exportDrawing() {
-  //           const dataUrl = canvas.toDataURL('image/png');
-  //           window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'export', dataUrl }));
-  //         }
-  //       </script>
-  //     </body>
-  //   </html>
-  // `;
 
   const canvasHtml = `
 <html>
