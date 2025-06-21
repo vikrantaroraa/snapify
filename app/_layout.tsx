@@ -61,6 +61,7 @@ export default function RootLayout() {
   return (
     <ColorSchemeContext.Provider value={colorScheme}>
       <Drawer
+        initialRouteName="(feature2)"
         screenOptions={{
           headerShown: true,
           headerStyle: {
@@ -78,23 +79,14 @@ export default function RootLayout() {
             <DrawerContentScrollView {...props}>
               <DrawerItemList {...props} />
             </DrawerContentScrollView>
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
           </View>
         )}
       >
         <Drawer.Screen
-          name="(feature1)"
-          options={{
-            title: "Feature 1",
-            drawerIcon: ({ size, color }) => (
-              <ShoppingBag size={size} color={color} />
-            ),
-          }}
-        />
-        <Drawer.Screen
           name="(feature2)"
           options={{
-            title: "Feature 2",
+            title: "Interactive Photo Canvas",
             drawerIcon: ({ size, color }) => (
               <Briefcase size={size} color={color} />
             ),
@@ -103,10 +95,38 @@ export default function RootLayout() {
         <Drawer.Screen
           name="(feature3)"
           options={{
-            title: "Feature 3",
+            title: "Instagram Stories Integration",
             drawerIcon: ({ size, color }) => (
               <Users size={size} color={color} />
             ),
+          }}
+        />
+        <Drawer.Screen
+          name="(feature1)"
+          options={{
+            drawerItemStyle: { display: "none" }, // Hides from drawer
+            title: "Feature 1",
+            drawerIcon: ({ size, color }) => (
+              <ShoppingBag size={size} color={color} />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="(tabs)"
+          options={{
+            drawerItemStyle: { display: "none" }, // Hides from drawer
+          }}
+        />
+        <Drawer.Screen
+          name="+not-found"
+          options={{
+            drawerItemStyle: { display: "none" },
+          }}
+        />
+        <Drawer.Screen
+          name="index"
+          options={{
+            drawerItemStyle: { display: "none" }, // hides it from the drawer menu
           }}
         />
       </Drawer>
