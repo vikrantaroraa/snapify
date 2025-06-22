@@ -43,7 +43,7 @@ import { Drawer } from "expo-router/drawer";
 import { StatusBar } from "expo-status-bar";
 import { useFrameworkReady } from "@/hooks/useFrameworkReady";
 import * as SplashScreen from "expo-splash-screen";
-import { Briefcase, ShoppingBag, Users } from "lucide-react-native";
+import { Clapperboard, Instagram, ShoppingBag } from "lucide-react-native";
 import {
   ColorSchemeContext,
   useColorSchemeProvider,
@@ -102,7 +102,7 @@ export default function RootLayout() {
           options={{
             title: "Interactive Photo Canvas",
             drawerIcon: ({ size, color }) => (
-              <Briefcase size={size} color={color} />
+              <Clapperboard size={size} color={color} />
             ),
           }}
         />
@@ -111,7 +111,7 @@ export default function RootLayout() {
           options={{
             title: "Instagram Stories Integration",
             drawerIcon: ({ size, color }) => (
-              <Users size={size} color={color} />
+              <Instagram size={size} color={color} />
             ),
           }}
         />

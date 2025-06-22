@@ -19,14 +19,10 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { FontAwesome6 } from "@expo/vector-icons";
-import { Camera, ImagePlus, Instagram, Palette } from "lucide-react-native";
-import { Link } from "expo-router";
+import { Camera, ImagePlus, SquareArrowUpRight } from "lucide-react-native";
 import * as FileSystem from "expo-file-system";
-import { ImageManipulator } from "expo-image-manipulator";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as MediaLibrary from "expo-media-library";
-import * as Sharing from "expo-sharing";
-import * as Mime from "react-native-mime-types"; // New package we'll use
 import ViewShot from "react-native-view-shot";
 import {
   PanGestureHandler,
@@ -38,155 +34,15 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import Slider from "@react-native-community/slider";
+import { TEXTCOLORS } from "@/constants/Colors";
+// import { ImageManipulator } from "expo-image-manipulator";
+// import * as Mime from "react-native-mime-types";
 
 const INSTAGRAM_STORE_URLS = {
   ios: "https://apps.apple.com/app/instagram/id389801252",
   android:
     "https://play.google.com/store/apps/details?id=com.instagram.android",
 };
-
-const COLORS = [
-  { name: "White", value: "#ffffff" },
-  { name: "Black", value: "#000000" },
-  { name: "Red", value: "#ff0000" },
-  { name: "Green", value: "#008000" },
-  { name: "Blue", value: "#0000ff" },
-  { name: "Yellow", value: "#ffff00" },
-  { name: "Cyan", value: "#00ffff" },
-  { name: "Magenta", value: "#ff00ff" },
-
-  { name: "AliceBlue", value: "#f0f8ff" },
-  { name: "AntiqueWhite", value: "#faebd7" },
-  { name: "Aquamarine", value: "#7fffd4" },
-  { name: "Azure", value: "#f0ffff" },
-  { name: "Beige", value: "#f5f5dc" },
-  { name: "Bisque", value: "#ffe4c4" },
-  { name: "BlanchedAlmond", value: "#ffebcd" },
-  { name: "BlueViolet", value: "#8a2be2" },
-  { name: "Brown", value: "#a52a2a" },
-  { name: "BurlyWood", value: "#deb887" },
-  { name: "CadetBlue", value: "#5f9ea0" },
-  { name: "Chartreuse", value: "#7fff00" },
-  { name: "Chocolate", value: "#d2691e" },
-  { name: "Coral", value: "#ff7f50" },
-  { name: "CornflowerBlue", value: "#6495ed" },
-  { name: "Cornsilk", value: "#fff8dc" },
-  { name: "Crimson", value: "#dc143c" },
-  { name: "DarkBlue", value: "#00008b" },
-  { name: "DarkCyan", value: "#008b8b" },
-  { name: "DarkGoldenRod", value: "#b8860b" },
-  { name: "DarkGray", value: "#a9a9a9" },
-  { name: "DarkGreen", value: "#006400" },
-  { name: "DarkKhaki", value: "#bdb76b" },
-  { name: "DarkMagenta", value: "#8b008b" },
-  { name: "DarkOliveGreen", value: "#556b2f" },
-  { name: "DarkOrange", value: "#ff8c00" },
-  { name: "DarkOrchid", value: "#9932cc" },
-  { name: "DarkRed", value: "#8b0000" },
-  { name: "DarkSalmon", value: "#e9967a" },
-  { name: "DarkSeaGreen", value: "#8fbc8f" },
-  { name: "DarkSlateBlue", value: "#483d8b" },
-  { name: "DarkSlateGrey", value: "#2f4f4f" },
-  { name: "DarkTurquoise", value: "#00ced1" },
-  { name: "DarkViolet", value: "#9400d3" },
-  { name: "DeepPink", value: "#ff1493" },
-  { name: "DeepSkyBlue", value: "#00bfff" },
-  { name: "DimGray", value: "#696969" },
-  { name: "DodgerBlue", value: "#1e90ff" },
-  { name: "FireBrick", value: "#b22222" },
-  { name: "FloralWhite", value: "#fffaf0" },
-  { name: "ForestGreen", value: "#228b22" },
-  { name: "Gainsboro", value: "#dcdcdc" },
-  { name: "GhostWhite", value: "#f8f8ff" },
-  { name: "Gold", value: "#ffd700" },
-  { name: "GoldenRod", value: "#daa520" },
-  { name: "Gray", value: "#808080" },
-  { name: "GreenYellow", value: "#adff2f" },
-  { name: "HoneyDew", value: "#f0fff0" },
-  { name: "HotPink", value: "#ff69b4" },
-  { name: "IndianRed", value: "#cd5c5c" },
-  { name: "Indigo", value: "#4b0082" },
-  { name: "Ivory", value: "#fffff0" },
-  { name: "Khaki", value: "#f0e68c" },
-  { name: "Lavender", value: "#e6e6fa" },
-  { name: "LavenderBlush", value: "#fff0f5" },
-  { name: "LawnGreen", value: "#7cfc00" },
-  { name: "LemonChiffon", value: "#fffacd" },
-  { name: "LightBlue", value: "#add8e6" },
-  { name: "LightCoral", value: "#f08080" },
-  { name: "LightCyan", value: "#e0ffff" },
-  { name: "LightGoldenRodYellow", value: "#fafad2" },
-  { name: "LightGray", value: "#d3d3d3" },
-  { name: "LightGreen", value: "#90ee90" },
-  { name: "LightPink", value: "#ffb6c1" },
-  { name: "LightSalmon", value: "#ffa07a" },
-  { name: "LightSeaGreen", value: "#20b2aa" },
-  { name: "LightSkyBlue", value: "#87cefa" },
-  { name: "LightSlateGrey", value: "#778899" },
-  { name: "LightSteelBlue", value: "#b0c4de" },
-  { name: "LightYellow", value: "#ffffe0" },
-  { name: "Lime", value: "#00ff00" },
-  { name: "LimeGreen", value: "#32cd32" },
-  { name: "Linen", value: "#faf0e6" },
-  { name: "Maroon", value: "#800000" },
-  { name: "MediumAquaMarine", value: "#66cdaa" },
-  { name: "MediumBlue", value: "#0000cd" },
-  { name: "MediumOrchid", value: "#ba55d3" },
-  { name: "MediumPurple", value: "#9370db" },
-  { name: "MediumSeaGreen", value: "#3cb371" },
-  { name: "MediumSlateBlue", value: "#7b68ee" },
-  { name: "MediumSpringGreen", value: "#00fa9a" },
-  { name: "MediumTurquoise", value: "#48d1cc" },
-  { name: "MediumVioletRed", value: "#c71585" },
-  { name: "MidnightBlue", value: "#191970" },
-  { name: "MintCream", value: "#f5fffa" },
-  { name: "MistyRose", value: "#ffe4e1" },
-  { name: "Moccasin", value: "#ffe4b5" },
-  { name: "NavajoWhite", value: "#ffdead" },
-  { name: "Navy", value: "#000080" },
-  { name: "OldLace", value: "#fdf5e6" },
-  { name: "Olive", value: "#808000" },
-  { name: "OliveDrab", value: "#6b8e23" },
-  { name: "Orange", value: "#ffa500" },
-  { name: "OrangeRed", value: "#ff4500" },
-  { name: "Orchid", value: "#da70d6" },
-  { name: "PaleGoldenRod", value: "#eee8aa" },
-  { name: "PaleGreen", value: "#98fb98" },
-  { name: "PaleTurquoise", value: "#afeeee" },
-  { name: "PaleVioletRed", value: "#db7093" },
-  { name: "PapayaWhip", value: "#ffefd5" },
-  { name: "PeachPuff", value: "#ffdab9" },
-  { name: "Peru", value: "#cd853f" },
-  { name: "Pink", value: "#ffc0cb" },
-  { name: "Plum", value: "#dda0dd" },
-  { name: "PowderBlue", value: "#b0e0e6" },
-  { name: "Purple", value: "#800080" },
-  { name: "RebeccaPurple", value: "#663399" },
-  { name: "RosyBrown", value: "#bc8f8f" },
-  { name: "RoyalBlue", value: "#4169e1" },
-  { name: "SaddleBrown", value: "#8b4513" },
-  { name: "Salmon", value: "#fa8072" },
-  { name: "SandyBrown", value: "#f4a460" },
-  { name: "SeaGreen", value: "#2e8b57" },
-  { name: "Seashell", value: "#fff5ee" },
-  { name: "Sienna", value: "#a0522d" },
-  { name: "Silver", value: "#c0c0c0" },
-  { name: "SkyBlue", value: "#87ceeb" },
-  { name: "SlateBlue", value: "#6a5acd" },
-  { name: "SlateGray", value: "#708090" },
-  { name: "Snow", value: "#fffafa" },
-  { name: "SpringGreen", value: "#00ff7f" },
-  { name: "SteelBlue", value: "#4682b4" },
-  { name: "Tan", value: "#d2b48c" },
-  { name: "Teal", value: "#008080" },
-  { name: "Thistle", value: "#d8bfd8" },
-  { name: "Tomato", value: "#ff6347" },
-  { name: "Turquoise", value: "#40e0d0" },
-  { name: "Violet", value: "#ee82ee" },
-  { name: "Wheat", value: "#f5deb3" },
-  { name: "WhiteSmoke", value: "#f5f5f5" },
-  { name: "YellowGreen", value: "#9acd32" },
-];
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -522,9 +378,9 @@ export default function CameraScreen() {
             //   bottom_background_color: "#00FF00",
             //   content_url: "https://snapify-app.netlify.app", // optional
             // },
-            data: contentUri,
+            data: contentUri, // this is what sends the image to Instagram
             extra: {
-              "com.instagram.sharedSticker.backgroundImage": contentUri,
+              "com.instagram.sharedSticker.backgroundImage": contentUri, // this is just extra info for Instagram, even if i remove this line, image still gets shared to Instagram
               "com.instagram.sharedSticker.contentURL": "https://snapify.fun/",
               "com.facebook.platform.extra.APPLICATION_ID": "1321011919674357",
             },
@@ -649,7 +505,7 @@ export default function CameraScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.colorsPanel}
         >
-          {COLORS.map(({ name, value }) => (
+          {TEXTCOLORS.map(({ name, value }) => (
             <TouchableOpacity
               key={value}
               onPress={() => setCaptionTextColor(value)}
@@ -683,7 +539,7 @@ export default function CameraScreen() {
           // onPress={() => shareToInstagram(uri!)}  // instead of sharing the image directly to instagram, we will share the viewshot which also contains the overlay caption text
           onPress={captureAndShare}
         >
-          <Instagram size={22} color="white" />
+          <SquareArrowUpRight size={22} color="white" />
           <Text style={styles.startText}>Share to Instagram</Text>
         </TouchableOpacity>
       </View>
