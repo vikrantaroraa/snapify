@@ -10,18 +10,24 @@
     "newArchEnabled": true,
     "doctor": {
       "reactNativeDirectoryCheck": {
-        "exclude": ["lucide-react-native"]
+        "exclude": [
+          "lucide-react-native"
+        ]
       }
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
-      "package": "com.vikrantaroraa.snapify",
+      "package": "com.vikrantaroraa.snapify.preview",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -33,7 +39,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
@@ -50,6 +56,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "4bf80056-652b-492d-96ee-4393babccd5d"
+      }
     }
   }
 }
