@@ -42,21 +42,35 @@ import { View } from "react-native";
 import { Drawer } from "expo-router/drawer";
 import { StatusBar } from "expo-status-bar";
 import { useFrameworkReady } from "@/hooks/useFrameworkReady";
+import * as SplashScreen from "expo-splash-screen";
 import { Briefcase, ShoppingBag, Users } from "lucide-react-native";
 import {
   ColorSchemeContext,
   useColorSchemeProvider,
 } from "@/hooks/useColorScheme2";
-import { ThemeToggle } from "@/components/ThemeToggle";
+// import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
+import { useEffect } from "react";
+
+// Prevent the splash screen from auto-hiding too early or before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useFrameworkReady();
   const colorScheme = useColorSchemeProvider();
   const isDark = colorScheme.colorScheme === "dark";
+
+  // Delay hide with fade-like behavior
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      SplashScreen.hideAsync();
+    }, 400); // minimum 400ms splash duration
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   return (
     <ColorSchemeContext.Provider value={colorScheme}>

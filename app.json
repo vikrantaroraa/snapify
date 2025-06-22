@@ -10,9 +10,7 @@
     "newArchEnabled": true,
     "doctor": {
       "reactNativeDirectoryCheck": {
-        "exclude": [
-          "lucide-react-native"
-        ]
+        "exclude": ["lucide-react-native"]
       }
     },
     "ios": {
@@ -42,7 +40,7 @@
           "image": "./assets/images/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#dfc6e3"
         }
       ],
       [
