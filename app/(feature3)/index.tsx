@@ -344,8 +344,8 @@ export default function CameraScreen() {
         }
 
         // Step 2: Copy the image to app's cache directory first (which is accessible to FileSystem)
-        const filename = "instagram_share.jpg";
-        const destinationUri = `${FileSystem.cacheDirectory}${filename}`;
+        const filename = `instagram_share_${Date.now()}.jpg`;
+        const destinationUri = `${FileSystem.documentDirectory}${filename}`;
 
         await FileSystem.copyAsync({
           from: uri,
