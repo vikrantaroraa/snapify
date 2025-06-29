@@ -352,6 +352,13 @@ export default function CameraScreen() {
           to: destinationUri,
         });
 
+        // Optional tiny delay so the OS finishes indexing it
+        await new Promise((r) => setTimeout(r, 200));
+
+        // Ensure it’s actually there
+        const info = await FileSystem.getInfoAsync(destinationUri);
+        if (!info.exists) throw new Error("File not copied properly.");
+
         // Step 3: Get content URI from the copied file (this should work since it's in our app's cache)
         const contentUri = await FileSystem.getContentUriAsync(destinationUri);
 
