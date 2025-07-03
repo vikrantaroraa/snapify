@@ -394,6 +394,10 @@ export default function CameraScreen() {
       }
     } // share to Instagram on ios
     else {
+      Alert.alert(
+        "Info",
+        "Currently this feature is only supported on android."
+      );
     }
   };
 
