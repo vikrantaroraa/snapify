@@ -67,7 +67,7 @@ A photo editing & sharing app built in React Native + Expo, featuring an interac
 - **Interactive Drawing Canvas**: Load the captured photo onto a canvas and draw freely on the captured image.
 - **Sticker Library Integration**: Add stickers to your image from a curated sticker library from the [Free Sticker Pack / Illustrations by Devin Choa](<https://www.figma.com/design/GwwOt0Yo0Hlxiy3qaUB6vW/Free-Sticker-Pack-%2F-Illustrations---Devin-Choa-(Community)?node-id=0-1&t=5LFki6FpgGlG4lHf-1>).
 - **Drag and resize stickers**: You can drag the stickers anywhere on the image and resize them using pinch-to-zoom gesture.
-- **Undo & Redo chnages**: Revert or re-apply drawing strokes, sticker movements and other changes to fine-tune your edits.
+- **Undo & Redo changes**: Revert or re-apply drawing strokes, sticker movements and other changes to fine-tune your edits.
 - **Export or Discard Edits**: Save your final edited photo to your device or discard it.
 
 ---
@@ -75,9 +75,9 @@ A photo editing & sharing app built in React Native + Expo, featuring an interac
 ## Instagram Stories Integration
 
 <div style="display: flex; justify-content: space-between; align-items:flex-start; gap: 55px">
-  <kbd><img src="assets/readme-images/take-photo-screen.jpg" alt="take-photo-screen" style="width:380px; height:1000px;"/></kbd>
+  <kbd><img src="assets/readme-images/take-photo-screen.jpg" alt="take-photo-screen" style="width:380px; height:auto;"/></kbd>
    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <kbd><img src="assets/readme-images/instagram-share-screen.jpg" alt="instagram-share-screen" style="width:380px; height:1000px;"/></kbd>
+  <kbd><img src="assets/readme-images/instagram-share-screen.jpg" alt="instagram-share-screen" style="width:380px; height:auto;"/></kbd>
 </div>
 
 ## ✨ Features
