@@ -56,9 +56,9 @@ A photo editing & sharing app built in React Native + Expo, featuring an interac
 ## Interactive Photo Canvas
 
 <div style="display: flex;">
-  <kbd><img src="assets/readme-images/grant-permission-screen.jpg" alt="grant-permission-screen" style="width:390px; height:auto;"/></kbd>
+  <kbd><img src="assets/readme-images/grant-permission-screen.jpg" alt="grant-permission-screen" style="width:380px; height:auto;"/></kbd>
    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <kbd><img src="assets/readme-images/image-editor-screen.jpg" alt="image-editor-screen.jpg" style="width:390px; height:auto;"/></kbd>
+  <kbd><img src="assets/readme-images/image-editor-screen.jpg" alt="image-editor-screen.jpg" style="width:380px; height:auto;"/></kbd>
 </div>
 
 ## ✨ Features
