@@ -51,13 +51,14 @@ Join our community of developers creating universal apps.
 
 # Snapify
 
-A photo editing & sharing app built with React Native + Expo, featuring an interactive canvas and seamless Instagram Stories integration.
+A photo editing & sharing app built in React Native + Expo, featuring an interactive canvas and seamless Instagram stories integration.
 
 ## Interactive Photo Canvas
 
-<div style="display: flex; gap:55px;">
-  <kbd><img src="assets/readme-images/grant-permission-screen.jpg" alt="grant-permission-screen" style="width:100%; height:auto;"/></kbd>
-  <kbd><img src="assets/readme-images/image-editor-screen.jpg" alt="image-editor-screen.jpg" style="width:100%; height:auto;"/></kbd>
+<div style="display: flex;">
+  <kbd><img src="assets/readme-images/grant-permission-screen.jpg" alt="grant-permission-screen" style="width:450px; height:auto;"/></kbd>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <kbd><img src="assets/readme-images/image-editor-screen.jpg" alt="image-editor-screen.jpg" style="width:450px; height:auto;"/></kbd>
 </div>
 
 ## ✨ Features
@@ -73,9 +74,10 @@ A photo editing & sharing app built with React Native + Expo, featuring an inter
 
 ## Instagram Stories Integration
 
-<div style="display: flex; justify-content: space-between;align-items:flex-start; gap: 55px">
-  <kbd style="width:100%; height:1000;"><img src="assets/readme-images/take-photo-screen.jpg" alt="take-photo-screen" style="width:100%; height:auto;"/></kbd>
-  <kbd style="width:100%; height:1000;"><img src="assets/readme-images/instagram-share-screen.jpg" alt="instagram-share-screen" style="width:100%; height:auto;"/></kbd>
+<div style="display: flex; justify-content: space-between; align-items:flex-start; gap: 55px">
+  <kbd><img src="assets/readme-images/take-photo-screen.jpg" alt="take-photo-screen" style="width:450px; height:1000px;"/></kbd>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <kbd><img src="assets/readme-images/instagram-share-screen.jpg" alt="instagram-share-screen" style="width:450px; height:1000px;"/></kbd>
 </div>
 
 ## ✨ Features
