@@ -75,9 +75,9 @@ A photo editing & sharing app built in React Native + Expo, featuring an interac
 ## Instagram Stories Integration
 
 <div style="display: flex; justify-content: space-between; align-items:flex-start; gap: 55px">
-  <kbd><img src="assets/readme-images/take-photo-screen.jpg" alt="take-photo-screen" style="width:400px; height:1000px;"/></kbd>
+  <kbd><img src="assets/readme-images/take-photo-screen.jpg" alt="take-photo-screen" style="width:380px; height:1000px;"/></kbd>
    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <kbd><img src="assets/readme-images/instagram-share-screen.jpg" alt="instagram-share-screen" style="width:400px; height:1000px;"/></kbd>
+  <kbd><img src="assets/readme-images/instagram-share-screen.jpg" alt="instagram-share-screen" style="width:380px; height:1000px;"/></kbd>
 </div>
 
 ## ✨ Features
